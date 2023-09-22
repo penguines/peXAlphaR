@@ -215,6 +215,7 @@ void setEvents(msgEventRegister& event_reg) {
 	event_reg.append(register_repeat);
 	event_reg.append(register_setRepeatTimes);
 	event_reg.append(register_atReply);
+	event_reg.append(register_atReplyReload);
 	event_reg.append(register_setOperator);
 	event_reg.append(register_delOperator);
 	event_reg.append(register_getHelp);

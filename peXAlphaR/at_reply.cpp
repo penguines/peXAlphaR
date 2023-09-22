@@ -124,3 +124,23 @@ void register_atReply(std::vector<CQMsgEvent>& event_list){
 
 	event_list.push_back(event_tmp);
 }
+
+int atReplyReload(CQmsg& msg){
+	return at_replies.load();
+}
+
+void register_atReplyReload(std::vector<CQMsgEvent>& event_list){
+	CQMsgEvent event_tmp;
+	event_tmp.event_func = atReplyReload;
+	event_tmp.event_type = EVENT_ALL;
+	event_tmp.trig_type = MSG_MATCH;
+	event_tmp.msg_codetype = CODE_UTF8;
+	event_tmp.trig_msg.emplace_back("/autoreply reload");
+	event_tmp.tag.index = 0;
+	event_tmp.tag.name = _G("自动回复配置重载");
+	event_tmp.tag.permission = ATREPLY_RELOAD_PERMISSION;
+	event_tmp.tag.example = _G("/autoreply reload");
+	event_tmp.tag.description = _G("热重载自动回复配置。");
+
+	event_list.push_back(event_tmp);
+}

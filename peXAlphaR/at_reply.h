@@ -12,6 +12,8 @@
 #define MATCH_TYPE_MASK		0x0010
 #define MATCH_LCASE_MASK	0x0001
 
+#define ATREPLY_RELOAD_PERMISSION	OWNER_PERMISSION_LEVEL
+
 const std::string AT_REPLIES_PATH = "data/at_replies.json";
 
 namespace alpha_atReply {
@@ -21,6 +23,10 @@ namespace alpha_atReply {
 int atReply(CQmsg& msg);
 int isAtBot(CQmsg& msg);
 void register_atReply(std::vector<CQMsgEvent>& event_list);
+
+int atReplyReload(CQmsg& msg);
+void register_atReplyReload(std::vector<CQMsgEvent>& event_list);
+
 
 #endif // !AT_REPLY_H
 
