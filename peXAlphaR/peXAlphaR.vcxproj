@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{659EE0D9-5D18-4288-99EB-8516C1456850}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>peXAlphaR</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>D:\peX\OpenSSL-Win64\include;D:\peX\curl-7.84.0\builds\libcurl-vc19-x64-release-static-ipv6-sspi-schannel\include;D:\peX\opencv\binaries\install\include\opencv2;D:\peX\opencv\binaries\install\include;D:\peX\peXAlpha_Reborn\peXAlphaR\JsonCPP\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\peX\OpenSSL-Win64\lib;D:\peX\curl-7.84.0\builds\libcurl-vc19-x64-release-static-ipv6-sspi-schannel\lib;D:\peX\opencv\binaries\install\x64\vc16\staticlib;D:\peX\peXAlpha_Reborn\peXAlphaR\JsonCPP\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;BUILDING_LIBCURL;USE_OPENSSL;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>D:\peX\opencv\build\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libssl_static.lib;libcrypto_static.lib;Wldap32.lib;libcurl_a.lib;Ws2_32.lib;winmm.lib;Crypt32.lib;Normaliz.lib;ade.lib;IlmImf.lib;ittnotify.lib;libjasper.lib;libjpeg-turbo.lib;libpng.lib;libprotobuf.lib;libtiff.lib;libwebp.lib;opencv_world440.lib;quirc.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="alpha_basic_event.cpp" />
+    <ClCompile Include="alpha_cv.cpp" />
+    <ClCompile Include="alpha_cv_event.cpp" />
+    <ClCompile Include="alpha_help.cpp" />
+    <ClCompile Include="alpha_inits.cpp" />
+    <ClCompile Include="alpha_paths.cpp" />
+    <ClCompile Include="alpha_permissions.cpp" />
+    <ClCompile Include="alpha_runtime.cpp" />
+    <ClCompile Include="alpha_time.cpp" />
+    <ClCompile Include="alpha_time_events.cpp" />
+    <ClCompile Include="at_reply.cpp" />
+    <ClCompile Include="cq_api_post.cpp" />
+    <ClCompile Include="cq_connection.cpp" />
+    <ClCompile Include="cq_event.cpp" />
+    <ClCompile Include="cq_group.cpp" />
+    <ClCompile Include="cq_group_member.cpp" />
+    <ClCompile Include="cq_json_msg.cpp" />
+    <ClCompile Include="cq_msg.cpp" />
+    <ClCompile Include="cq_msg_event.cpp" />
+    <ClCompile Include="cq_time_event.cpp" />
+    <ClCompile Include="cq_transcoder.cpp" />
+    <ClCompile Include="cq_user.cpp" />
+    <ClCompile Include="msg_event_register.cpp" />
+    <ClCompile Include="func_repeat.cpp" />
+    <ClCompile Include="json_file.cpp" />
+    <ClCompile Include="lib_json\json_reader.cpp" />
+    <ClCompile Include="lib_json\json_value.cpp" />
+    <ClCompile Include="lib_json\json_writer.cpp" />
+    <ClCompile Include="load_from_json.cpp" />
+    <ClCompile Include="peXAlphaR.cpp" />
+    <ClCompile Include="realesrgan_exe.cpp" />
+    <ClCompile Include="time_event_register.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\JsonCPP\include\json\json.h" />
+    <ClInclude Include="alpha_basic_event.h" />
+    <ClInclude Include="alpha_config.h" />
+    <ClInclude Include="alpha_cv.h" />
+    <ClInclude Include="alpha_cv_event.h" />
+    <ClInclude Include="alpha_debug.h" />
+    <ClInclude Include="alpha_help.h" />
+    <ClInclude Include="alpha_inits.h" />
+    <ClInclude Include="alpha_paths.h" />
+    <ClInclude Include="alpha_permissions.h" />
+    <ClInclude Include="alpha_runtime.h" />
+    <ClInclude Include="alpha_time.h" />
+    <ClInclude Include="alpha_time_events.h" />
+    <ClInclude Include="at_reply.h" />
+    <ClInclude Include="cq_api_post.h" />
+    <ClInclude Include="cq_connection.h" />
+    <ClInclude Include="cq_event.h" />
+    <ClInclude Include="cq_group.h" />
+    <ClInclude Include="cq_group_member.h" />
+    <ClInclude Include="cq_json_msg.h" />
+    <ClInclude Include="cq_msg.h" />
+    <ClInclude Include="cq_msg_event.h" />
+    <ClInclude Include="cq_time_event.h" />
+    <ClInclude Include="cq_transcoder.h" />
+    <ClInclude Include="cq_user.h" />
+    <ClInclude Include="msg_event_register.h" />
+    <ClInclude Include="func_repeat.h" />
+    <ClInclude Include="json_file.h" />
+    <ClInclude Include="load_from_json.h" />
+    <ClInclude Include="realesrgan_exe.h" />
+    <ClInclude Include="time_event_register.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
