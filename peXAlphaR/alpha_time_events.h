@@ -3,6 +3,7 @@
 
 #include "cq_api_post.h"
 #include "cq_time_event.h"
+#include "alpha_runtime.h"
 
 #define SETTIME_MENTION_PERMISSION	0
 

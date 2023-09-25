@@ -32,6 +32,7 @@ int aTimeFromStr(const std::string time_str, aTime& _time){
 }
 
 int setTimeMention(const aTime& time, void* arg){
+	CQGroupList* grp_data = static_cast<CQGroupList*>(arg);
 	const Json::Value& mentions = settime_mentions.json;
 	if (!mentions.isArray()) {
 		return 0;
@@ -39,7 +40,22 @@ int setTimeMention(const aTime& time, void* arg){
 	for (int i = 0; i < mentions.size(); i++) {
 		for (auto tm_it = settime_times[i].begin(); tm_it != settime_times[i].end(); tm_it++) {
 			if (setTimeCompare(time, *tm_it) == 0) {
+				const Json::Value& grp_list = mentions[i]["group_id"];
+				if (!grp_list.isArray()) {
+					return 0;
+				}
+				for (int j = 0; j < grp_list.size(); j++) {
+					//int64_id > 0: white list mode
+					int64_t grp_id = grp_list[j].asInt64();
+					if (grp_id > 0) {
+						if (grp_data->find(grp_id) == grp_data->end()) {
+							continue;
+						}
+						if (isGroupAvailable(&(*grp_data)[grp_id])) {
 
+						}
+					}
+				}
 				break;
 			}
 		}

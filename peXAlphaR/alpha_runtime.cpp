@@ -117,14 +117,18 @@ int createNewCQGroupData(CQGroupList& group_list, const std::string& group_id){
 	}
 }
 
-int isGroupAvailable(CQGroupMsg& group_msg){
+int isGroupAvailable(pCQgroup_t group){
 	int is_ava = 0;
-	if (!loadIntByKeyword("available", group_msg.group->group_data.json, is_ava)) {
-		group_msg.group->group_data.json["available"] = 0;
-		group_msg.group->group_data.save();
+	if (!loadIntByKeyword("available", group->group_data.json, is_ava)) {
+		group->group_data.json["available"] = 0;
+		group->group_data.save();
 		return 0;
 	}
 	return is_ava;
+}
+
+int isGroupAvailable(CQGroupMsg& group_msg){
+	return isGroupAvailable(group_msg.group);
 }
 
 int checkGroupStart(CQGroupMsg& group_msg){

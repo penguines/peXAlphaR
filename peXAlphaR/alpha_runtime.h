@@ -32,6 +32,7 @@ void createNewCQUserData(CQUserDataList& users_data, const std::string& user_id)
 void createNewCQGrpmbrData(jsonFileMap& member_data, const std::string& group_id, const std::string& user_id);
 int createNewCQGroupData(CQGroupList& group_list, const std::string& group_id);
 
+int isGroupAvailable(pCQgroup_t group);
 int isGroupAvailable(CQGroupMsg& group_msg);
 int checkGroupStart(CQGroupMsg& group_msg);
 
