@@ -29,7 +29,9 @@ int timeEventRegister::executeEvents(const aTime& time){
 	for (int i = 0; i < m_events.size(); i++) {
 		if (m_events[i].trig(time, m_args[i]) > 0) {
 			cnt++;
-			PRINTLOG("Event %s has been triggered.\n", m_events[i].tag.name.c_str());
+			if (m_events[i].trig_type != eventTriggerType::TRIG_ALWAYS) {
+				PRINTLOG("Event %s has been triggered.\n", m_events[i].tag.name.c_str());
+			}
 		}
 	}
 	return cnt;

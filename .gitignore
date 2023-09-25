@@ -3,12 +3,19 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Libraries
+opencv/
+curl-7.84.0/
+JsonCPP/
+OpenSSL-Win64/
+
 # User-specific files
 *.rsuser
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+*.rdp
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

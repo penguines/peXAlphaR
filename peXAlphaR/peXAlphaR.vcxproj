@@ -81,8 +81,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\peX\OpenSSL-Win64\include;D:\peX\curl-7.84.0\builds\libcurl-vc19-x64-release-static-ipv6-sspi-schannel\include;D:\peX\opencv\binaries\install\include\opencv2;D:\peX\opencv\binaries\install\include;D:\peX\peXAlpha_Reborn\peXAlphaR\JsonCPP\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\peX\OpenSSL-Win64\lib;D:\peX\curl-7.84.0\builds\libcurl-vc19-x64-release-static-ipv6-sspi-schannel\lib;D:\peX\opencv\binaries\install\x64\vc16\staticlib;D:\peX\peXAlpha_Reborn\peXAlphaR\JsonCPP\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)OpenSSL-Win64\include;$(SolutionDir)curl-7.84.0\builds\libcurl-vc19-x64-release-static-ipv6-sspi-schannel\include;$(SolutionDir)opencv\binaries\install\include\opencv2;$(SolutionDir)opencv\binaries\install\include;$(SolutionDir)JsonCPP\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)OpenSSL-Win64\lib;$(SolutionDir)curl-7.84.0\builds\libcurl-vc19-x64-release-static-ipv6-sspi-schannel\lib;$(SolutionDir)opencv\binaries\install\x64\vc16\staticlib;$(SolutionDir)JsonCPP\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

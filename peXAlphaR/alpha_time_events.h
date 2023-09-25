@@ -6,6 +6,10 @@
 
 #define SETTIME_MENTION_PERMISSION	0
 
+typedef std::vector<aTime> aTimeList;
+
+int aTimeFromStr(const std::string time_str, aTime& _time);
+
 int setTimeMention(const aTime& time, void* arg);
 void register_setTimeMention(std::vector<CQTimeEvent>& event_list);
 
