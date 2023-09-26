@@ -7,7 +7,13 @@
 
 #define SETTIME_MENTION_PERMISSION	0
 
+const std::string SETTIME_MENTION_PATH = "data/mentions.json";
+
 typedef std::vector<aTime> aTimeList;
+
+namespace alpha_timeEvents {
+	void loadSetTimeMention(const std::string& folder_path);
+}
 
 int aTimeFromStr(const std::string time_str, aTime& _time);
 

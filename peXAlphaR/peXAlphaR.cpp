@@ -204,11 +204,13 @@ void initialize() {
 
 	alpha_atReply::loadRepliesFile(RUN_PATH);
 
+	alpha_timeEvents::loadSetTimeMention(RUN_PATH);
+
 	realesrganExe::setRunPath(RUN_PATH);
 }
 
 void setTimeEvents(timeEventRegister& event_reg){
-	event_reg.append(register_setTimeMention, (void*)0);
+	event_reg.append(register_setTimeMention, static_cast<void*>(&groups_data));
 }
 
 void setEvents(msgEventRegister& event_reg) {
