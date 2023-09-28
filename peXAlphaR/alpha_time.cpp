@@ -139,6 +139,12 @@ int aTime::utc() const{
 	return static_cast<const int&>(this->m_utc);
 }
 
+void aTime::printTime(std::string& str){
+	char buf[32];
+	sprintf(buf, "%d/%02d/%02d %02d:%02d:%02d", this->ADYear(), this->month(), this->mday(), this->hour(), this->mint(), this->sec());
+	str.assign(buf);
+}
+
 aTime& aTime::copy(const aTime& src){
 	if (this == &src) {
 		return *this;

@@ -106,10 +106,10 @@ void timeEventLoop(){
 	now = std::chrono::system_clock::from_time_t(cur_gmtime);
 	awake = now + std::chrono::seconds(1);
 	std::this_thread::sleep_until(awake);
+	now = std::chrono::system_clock::now();
 
 	while (1) {
 		//get current time
-		now = std::chrono::system_clock::now();
 		cur_gmtime = std::chrono::system_clock::to_time_t(now);
 		awake = now + std::chrono::milliseconds(time_step);
 		cur_localtime = localtime(&cur_gmtime);
@@ -117,10 +117,10 @@ void timeEventLoop(){
 
 		//Codes here
 		time_events_reg.executeEvents(cur_time);
-
-
+		
 		//
 		std::this_thread::sleep_until(awake);
+		now = awake;
 	}
 }
 

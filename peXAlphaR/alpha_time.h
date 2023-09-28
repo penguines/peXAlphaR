@@ -1,6 +1,7 @@
 #ifndef ALPHA_TIME_H
 #define ALPHA_TIME_H
 
+#include <string>
 #include <time.h>
 #include <cstdint>
 
@@ -84,6 +85,7 @@ public:
 	//Local time zone.
 	int utc() const;
 
+	void printTime(std::string& str);
 	
 	aTime& copy(const aTime& src);
 	aTime& operator=(const aTime& a_tm);
