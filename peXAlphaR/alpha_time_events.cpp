@@ -13,8 +13,13 @@ Structure:
 	}
 ]
 */
-JsonFile_t settime_mentions;
-std::vector<aTimeList> settime_times;
+static JsonFile_t settime_mentions;
+static std::vector<aTimeList> settime_times;
+static std::string img_folder_path;
+
+void alpha_timeEvents::setImgFolder(const std::string& folder_path){
+	img_folder_path = folder_path;
+}
 
 void alpha_timeEvents::loadSetTimeMention(const std::string& folder_path) {
 	uint32_t cnt = 0;
@@ -93,6 +98,8 @@ int setTimeMention(const aTime& time, void* arg){
 						}
 						if (isGroupAvailable(&(*grp_data)[grp_id])) {
 							msg.fromStyledText(msg_list[randomInt(0, msg_list.size() - 1)].asString());
+							msg.fillImgPath(img_folder_path);
+
 							sendGroupMsg((*grp_data)[grp_id].id, msg.getJson());
 							msg_cnt++;
 							PRINTLOG("[定时提醒]在群%s中发出一条定时提醒。", (*grp_data)[grp_id].id.c_str());
@@ -113,6 +120,8 @@ int setTimeMention(const aTime& time, void* arg){
 						if (!searchFromVector(blacklist, grp_it->second.u64_id)) {
 							if (isGroupAvailable(&(grp_it->second))) {
 								msg.fromStyledText(msg_list[randomInt(0, msg_list.size() - 1)].asString());
+								msg.fillImgPath(img_folder_path);
+
 								sendGroupMsg(grp_it->second.id, msg.getJson());
 								msg_cnt++;
 								PRINTLOG("[定时提醒]在群%s中发出一条定时提醒。", grp_it->second.id.c_str());

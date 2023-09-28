@@ -49,6 +49,8 @@ public:
 	void fromStyledText(const std::string& text);
 
 	void replaceSpecialAt(const std::string& id, const std::string& special_key);
+
+	void fillImgPath(const std::string& folder_path);
 private:
 	Json::Value m_json;
 };

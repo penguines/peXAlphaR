@@ -13,10 +13,10 @@
 
 #define GROUP_DATA_FILE_NAME "global.json"
 
-const std::string CONFIG_FILE_NAME = "config.json";
-const std::string GROUP_DATA_PATH = "data\\groups\\";
-const std::string USER_DATA_PATH = "data\\users\\";
-const std::string IMG_FILES_PATH = "img\\";
+const std::string	CONFIG_FILE_NAME	= "config.json";
+const std::string	GROUP_DATA_PATH		= "data\\groups\\";
+const std::string	USER_DATA_PATH		= "data\\users\\";
+const std::string	IMG_FILES_PATH		= "img\\";
 
 //typedef jsonFileList CQUserDataList;
 typedef jsonFileMap CQUserDataList;

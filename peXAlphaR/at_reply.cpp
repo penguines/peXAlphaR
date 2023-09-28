@@ -1,6 +1,11 @@
 #include "at_reply.h"
 
 JsonFile_t at_replies;
+static std::string img_folder_path;
+
+void alpha_atReply::setImgFolder(const std::string& folder_path) {
+	img_folder_path = folder_path;
+}
 
 void alpha_atReply::loadRepliesFile(const std::string& folder_path){
 	at_replies.file_path = folder_path;
@@ -79,6 +84,8 @@ int atReply(CQmsg& msg){
 					}
 					reply_msg.fromStyledText(rep_arr[randomInt(0, rep_arr.size() - 1)].asString());
 					reply_msg.replaceSpecialAt(grp_msg.sender->id, REPLACE_AT_SENDER);
+					reply_msg.fillImgPath(img_folder_path);
+
 					sendGroupMsg(grp_msg.group->id, reply_msg.getJson());
 					return 1;
 				}
@@ -126,7 +133,14 @@ void register_atReply(std::vector<CQMsgEvent>& event_list){
 }
 
 int atReplyReload(CQmsg& msg){
-	return at_replies.load();
+	if (at_replies.load()) {
+		sendReply(msg, _U("成功载入自动回复配置！"), 1);
+		return 1;
+	}
+	else {
+		sendReply(msg, _U("自动回复配置载入失败。"), 1);
+		return 0;
+	}
 }
 
 void register_atReplyReload(std::vector<CQMsgEvent>& event_list){

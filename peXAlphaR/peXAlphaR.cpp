@@ -173,6 +173,7 @@ void initialize() {
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	RUN_PATH = getRunPath();
+	//IMG_FOLDER_PATH = RUN_PATH + IMG_FILES_PATH;
 	//config init
 	initConfig(RUN_PATH, bot_config_json, bot_config);
 	cq_post_api::setPostIP(bot_config.post_host, bot_config.post_port);
@@ -202,8 +203,10 @@ void initialize() {
 	alpha_basicEvents::loadPresents();
 	alpha_basicEvents::setActiveUsers(active_group_members);
 
+	alpha_atReply::setImgFolder(RUN_PATH + IMG_FILES_PATH);
 	alpha_atReply::loadRepliesFile(RUN_PATH);
 
+	alpha_timeEvents::setImgFolder(RUN_PATH + IMG_FILES_PATH);
 	alpha_timeEvents::loadSetTimeMention(RUN_PATH);
 
 	realesrganExe::setRunPath(RUN_PATH);

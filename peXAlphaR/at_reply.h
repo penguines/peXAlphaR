@@ -17,6 +17,7 @@
 const std::string AT_REPLIES_PATH = "data/at_replies.json";
 
 namespace alpha_atReply {
+	void setImgFolder(const std::string& folder_path);
 	void loadRepliesFile(const std::string& folder_path);
 }
 

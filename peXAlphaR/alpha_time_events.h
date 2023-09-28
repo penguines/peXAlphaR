@@ -12,6 +12,7 @@ const std::string SETTIME_MENTION_PATH = "data/mentions.json";
 typedef std::vector<aTime> aTimeList;
 
 namespace alpha_timeEvents {
+	void setImgFolder(const std::string& folder_path);
 	void loadSetTimeMention(const std::string& folder_path);
 }
 

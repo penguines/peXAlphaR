@@ -210,6 +210,24 @@ void CQJsonMsg::replaceSpecialAt(const std::string& id, const std::string& speci
 	}
 }
 
+void CQJsonMsg::fillImgPath(const std::string& folder_path){
+	if (this->m_json.empty()) {
+		return;
+	}
+	std::string text_tmp, fp_tmp("file:///");
+	fp_tmp.append(folder_path);
+	for (int i = 0; i < this->m_json.size(); i++) {
+		loadStringByKeyword("type", this->m_json[i], text_tmp);
+		if (text_tmp == "image") {
+			Json::Value& json_tmp = this->m_json[i]["data"];
+			loadStringByKeyword("file", json_tmp, text_tmp);
+			if (text_tmp.find("/") == std::string::npos && text_tmp.find("\\") == std::string::npos) {
+				json_tmp["file"] = fp_tmp + text_tmp;
+			}
+		}
+	}
+}
+
 const Json::Value& CQJmsg::text(const char* msg_text){
 	static thread_local Json::Value json_text_tmp;
 	static thread_local bool is_init = false;
