@@ -70,6 +70,9 @@ void register_imgSearch(std::vector<CQMsgEvent>& event_list);
 //Draw presents
 int drawPresents(CQmsg& msg);
 void register_drawPresents(std::vector<CQMsgEvent>& event_list);
+int multiDrawPresents(CQmsg& msg, int times);
+int drawPresents10(CQmsg& msg);
+void register_drawPresents10(std::vector<CQMsgEvent>& event_list);
 
 //Show presents
 int showPresents(CQmsg& msg);

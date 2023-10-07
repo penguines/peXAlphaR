@@ -454,6 +454,91 @@ void register_drawPresents(std::vector<CQMsgEvent>& event_list) {
 	event_list.push_back(event_tmp);
 }
 
+int multiDrawPresents(CQmsg& msg, int times){
+	if (!checkPermission(msg, DRAW_PRESENTS_PERMISSION)) {
+		return 0;
+	}
+
+	pCQuser_t user_tmp = getMsgSender(msg);
+	CQJsonMsg reply_msg;
+	std::string reply_str;
+	int present_times;
+	loadIntByKeyword("present_draw", user_tmp->customed_user_data->json, present_times, 3);
+	reply_msg.append(CQJmsg::at(user_tmp->id));
+	if (present_times < times) {
+		reply_msg.append(_U("抽礼物次数不足！"));
+		sendReply(msg, reply_msg.getJson());
+		return 0;
+	}
+	else {
+		present_times -= times;
+		user_tmp->customed_user_data->json["present_draw"] = present_times;
+	}
+
+	double rand_dbl;
+	size_t present_size = ava_presents.percent_sum.size();
+	int* draw_res = new int[present_size]();
+	int draw_num = 0;
+	for (int k = 0; k < times; k++) {
+		rand_dbl = randomDouble(0, 100);
+		for (int i = 0; i < present_size; i++) {
+			if (rand_dbl < ava_presents.percent_sum[i]) {
+				Json::Value& present_tmp = ava_presents.presents.json[i];
+				editUserPresent(*user_tmp, present_tmp, 1, presentEdit::PRESENT_ADD);
+				draw_num++;
+				draw_res[i]++;
+				break;
+			}
+		}
+	}
+	if (draw_num) {
+		user_tmp->customed_user_data->save();
+		reply_str.assign(_U("本次抽礼物获得：\n"));
+		reply_msg.append(reply_str);
+		reply_str.clear();
+		for (int i = 0; i < present_size; i++) {
+			if (draw_res[i] != 0) {
+				const Json::Value& present_ctmp = ava_presents.presents.json[i];
+				//reply_msg.append(CQJmsg::image(img_folder_f + present_ctmp["image"].asString()));
+				reply_str.append(_U("【")).append(present_ctmp["name"].asString()).append(_U("】 x ")).append(std::to_string(draw_res[i])).append("\n");
+			}
+		}
+		reply_str.append(_U("\n剩余抽礼物次数: ") + std::to_string(present_times));
+		reply_msg.append(reply_str);
+		sendReply(msg, reply_msg.getJson());
+		delete[] draw_res;
+		return draw_num;
+	}
+	user_tmp->customed_user_data->save();
+	reply_msg.append(_U(" 今天什么都没抽到！\n剩余抽礼物次数: ") + std::to_string(present_times));
+	sendReply(msg, reply_msg.getJson());
+	delete[] draw_res;
+	return 0;
+}
+
+int drawPresents10(CQmsg& msg){
+	return multiDrawPresents(msg, 10);
+}
+
+void register_drawPresents10(std::vector<CQMsgEvent>& event_list){
+	CQMsgEvent event_tmp;
+	event_tmp.event_func = drawPresents10;
+	event_tmp.event_type = EVENT_ALL;
+	event_tmp.trig_type = MSG_MATCH;
+	event_tmp.trig_msg.emplace_back(_G("礼物十连"));
+	event_tmp.trig_msg.emplace_back(_G("/礼物十连"));
+	event_tmp.trig_msg.emplace_back(_G("#礼物十连"));
+	event_tmp.msg_codetype = CODE_UTF8;
+	//Event tag
+	event_tmp.tag.index = 0;
+	event_tmp.tag.permission = DRAW_PRESENTS_PERMISSION;
+	event_tmp.tag.name = _G("礼物十连");
+	event_tmp.tag.example = _G("礼物十连(/礼物十连;#礼物十连)");
+	event_tmp.tag.description = _G("进行十次抽礼物。");
+
+	event_list.push_back(event_tmp);
+}
+
 int showPresents(CQmsg& msg) {
 	if (!checkPermission(msg, SHOW_PRESENTS_PERMISSION)) {
 		return 0;

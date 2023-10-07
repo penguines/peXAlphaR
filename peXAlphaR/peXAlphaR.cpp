@@ -229,6 +229,7 @@ void setEvents(msgEventRegister& event_reg) {
 	event_reg.append(register_disableGroup);
 	event_reg.append(register_dailySignIn);
 	event_reg.append(register_drawPresents);
+	event_reg.append(register_drawPresents10);
 	event_reg.append(register_showPresents);
 	event_reg.append(register_usePresents);
 	event_reg.append(register_throwPresents);
