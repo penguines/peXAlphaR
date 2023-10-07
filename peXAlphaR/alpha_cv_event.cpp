@@ -1,6 +1,16 @@
 #include "alpha_cv_event.h"
 
 using namespace alphaCV;
+static std::string img_folder_path;
+static cv::Mat xibao_bkg;
+
+void alpha_cvEvent::setImgFolder(const std::string& folder_path) {
+	img_folder_path = folder_path;
+}
+
+void alpha_cvEvent::initImages(){
+	xibao_bkg = cv::imread(img_folder_path + XIBAO_BKG_FILE, cv::IMREAD_COLOR);
+}
 
 char isASCIIStr(const char* str) {
 	int len = strlen(str);
@@ -68,6 +78,18 @@ void phStyledText(cv::Mat& OutputMat, int textWidth, const char* strBlack, const
 	OutputMat = textImg.clone();
 }
 
+void xibaoText(cv::InputArray xb_bkg, cv::OutputArray dst, const std::string& text){
+	if (text.empty()) {
+		return;
+	}
+	xb_bkg.copyTo(dst);
+	cv::Mat& dst_tmp = dst.getMatRef();
+	cv::Size sz;
+	sz = getTextSize(text.c_str(), XIBAO_LETTER_SIZE, XIBAO_LETTER_FONT);
+	
+	putTextZH(dst_tmp, text.c_str(), cv::Point((dst_tmp.cols - sz.width) / 2, (dst_tmp.rows - sz.height) / 2), cv::Scalar(0x0, 0x0, 0xff), XIBAO_LETTER_SIZE, XIBAO_LETTER_FONT);
+}
+
 void phStyledTextGen(const CQmsg& msg){
 	std::regex reg(PH_STYLEDTEXT_TRIG_REGEX);
 	std::smatch reg_result;
@@ -82,6 +104,22 @@ void phStyledTextGen(const CQmsg& msg){
 	
 	CQJsonMsg send_msg;
 	send_msg += CQJmsg::image(ph_img);
+	sendReply(msg, send_msg.getJson());
+}
+
+void xibaoTextGen(const CQmsg& msg){
+	std::regex reg(XIBAO_TRIG_REGEX);
+	std::smatch reg_result;
+	std::string msg_text = msg.uniText();
+	std::regex_search(msg_text, reg_result, reg);
+	std::string text;
+	text = reg_result[1].str();
+
+	cv::Mat img;
+	xibaoText(xibao_bkg, img, text);
+
+	CQJsonMsg send_msg;
+	send_msg += CQJmsg::image(img);
 	sendReply(msg, send_msg.getJson());
 }
 
@@ -107,6 +145,32 @@ void register_phSTEvent(std::vector<CQMsgEvent>& event_list){
 	event_tmp.tag.name = _G("神秘字符");
 	event_tmp.tag.example = _G("/ph [字符串1] [字符串2]");
 	event_tmp.tag.description = _G("基于给定字符生成一张神秘图片。");
+
+	event_list.push_back(event_tmp);
+}
+
+int xibaoEvent(CQmsg& msg){
+	if (!checkPermission(msg, XIBAO_PERMISSION)) {
+		return 0;
+	}
+
+	std::thread thread_tmp(xibaoTextGen, std::cref(msg));
+	thread_tmp.join();
+	return 1;
+}
+
+void register_xibaoEvent(std::vector<CQMsgEvent>& event_list){
+	CQMsgEvent event_tmp;
+	event_tmp.event_func = xibaoEvent;
+	event_tmp.event_type = EVENT_ALL;
+	event_tmp.trig_type = MSG_REGEX;
+	event_tmp.trig_regex = _G(XIBAO_TRIG_REGEX);
+	event_tmp.msg_codetype = CODE_UTF8;
+	event_tmp.tag.index = 0;
+	event_tmp.tag.permission = XIBAO_PERMISSION;
+	event_tmp.tag.name = _G("喜报！");
+	event_tmp.tag.example = _G("喜报 [字符串1]");
+	event_tmp.tag.description = _G("喜报！喜报！");
 
 	event_list.push_back(event_tmp);
 }

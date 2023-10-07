@@ -203,6 +203,9 @@ void initialize() {
 	alpha_basicEvents::loadPresents();
 	alpha_basicEvents::setActiveUsers(active_group_members);
 
+	alpha_cvEvent::setImgFolder(RUN_PATH + IMG_FILES_PATH);
+	alpha_cvEvent::initImages();
+
 	alpha_atReply::setImgFolder(RUN_PATH + IMG_FILES_PATH);
 	alpha_atReply::loadRepliesFile(RUN_PATH);
 
@@ -236,6 +239,7 @@ void setEvents(msgEventRegister& event_reg) {
 	event_reg.append(register_queryFavor);
 	event_reg.append(register_imgSearch);
 	event_reg.append(register_phSTEvent);
+	event_reg.append(register_xibaoEvent);
 	//Only available with valid graphic card.
 	//event_reg.append(register_imgEnhance);
 }
