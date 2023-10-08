@@ -8,6 +8,7 @@ opencv/
 curl-7.84.0/
 JsonCPP/
 OpenSSL-Win64/
+peXAlphaR/lib_json/
 
 # User-specific files
 *.rsuser
