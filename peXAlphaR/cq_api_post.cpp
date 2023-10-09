@@ -86,7 +86,15 @@ void sendGroupMsg(const std::string& group_id, const Json::Value& json){
 	std::string cmd("/send_group_msg?group_id=");
 	cmd.append(group_id).append("&message=");
 	cmd.append(urlEncode(fast_writer.write(json)));
+#ifdef ALPHA_SHOW_ALL_INFO
+	std::string send_ret = sendCommand(cmd);
+	std::cout << "--------------------------------------" << std::endl;
+	std::cout << "<API_POST> Return of sendGroupMsg():" << std::endl;
+	std::cout << send_ret << std::endl;
+	std::cout << "--------------------------------------" << std::endl;
+#else
 	sendCommand(cmd);
+#endif
 }
 
 void sendPrivateMsg(const std::string& user_id, const Json::Value& json) {
@@ -94,7 +102,15 @@ void sendPrivateMsg(const std::string& user_id, const Json::Value& json) {
 	std::string cmd("/send_private_msg?user_id=");
 	cmd.append(user_id).append("&message=");
 	cmd.append(urlEncode(fast_writer.write(json)));
+#ifdef ALPHA_SHOW_ALL_INFO
+	std::string send_ret = sendCommand(cmd);
+	std::cout << "--------------------------------------" << std::endl;
+	std::cout << "<API_POST> Return of sendPrivateMsg():" << std::endl;
+	std::cout << send_ret << std::endl;
+	std::cout << "--------------------------------------" << std::endl;
+#else
 	sendCommand(cmd);
+#endif
 }
 
 void sendReply(const CQmsg& msg, const Json::Value& json){
