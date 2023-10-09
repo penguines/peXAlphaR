@@ -111,6 +111,12 @@
     <ClCompile Include="alpha_time_events.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="minecraft_server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="alpha_types.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\JsonCPP\include\json\json.h">
@@ -204,6 +210,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="alpha_time_events.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="minecraft_server.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="alpha_types.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -168,6 +168,7 @@
     <ClCompile Include="alpha_runtime.cpp" />
     <ClCompile Include="alpha_time.cpp" />
     <ClCompile Include="alpha_time_events.cpp" />
+    <ClCompile Include="alpha_types.cpp" />
     <ClCompile Include="at_reply.cpp" />
     <ClCompile Include="cq_api_post.cpp" />
     <ClCompile Include="cq_connection.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="cq_time_event.cpp" />
     <ClCompile Include="cq_transcoder.cpp" />
     <ClCompile Include="cq_user.cpp" />
+    <ClCompile Include="minecraft_server.cpp" />
     <ClCompile Include="msg_event_register.cpp" />
     <ClCompile Include="func_repeat.cpp" />
     <ClCompile Include="json_file.cpp" />
@@ -205,6 +207,7 @@
     <ClInclude Include="alpha_runtime.h" />
     <ClInclude Include="alpha_time.h" />
     <ClInclude Include="alpha_time_events.h" />
+    <ClInclude Include="alpha_types.h" />
     <ClInclude Include="at_reply.h" />
     <ClInclude Include="cq_api_post.h" />
     <ClInclude Include="cq_connection.h" />
@@ -217,6 +220,7 @@
     <ClInclude Include="cq_time_event.h" />
     <ClInclude Include="cq_transcoder.h" />
     <ClInclude Include="cq_user.h" />
+    <ClInclude Include="minecraft_server.h" />
     <ClInclude Include="msg_event_register.h" />
     <ClInclude Include="func_repeat.h" />
     <ClInclude Include="json_file.h" />
