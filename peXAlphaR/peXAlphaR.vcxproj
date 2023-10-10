@@ -181,6 +181,7 @@
     <ClCompile Include="cq_time_event.cpp" />
     <ClCompile Include="cq_transcoder.cpp" />
     <ClCompile Include="cq_user.cpp" />
+    <ClCompile Include="minecraft_events.cpp" />
     <ClCompile Include="minecraft_server.cpp" />
     <ClCompile Include="msg_event_register.cpp" />
     <ClCompile Include="func_repeat.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="cq_time_event.h" />
     <ClInclude Include="cq_transcoder.h" />
     <ClInclude Include="cq_user.h" />
+    <ClInclude Include="minecraft_events.h" />
     <ClInclude Include="minecraft_server.h" />
     <ClInclude Include="msg_event_register.h" />
     <ClInclude Include="func_repeat.h" />

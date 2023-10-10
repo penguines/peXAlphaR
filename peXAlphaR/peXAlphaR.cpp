@@ -25,7 +25,7 @@
 #include "alpha_basic_event.h"
 #include "alpha_cv_event.h"
 #include "alpha_time.h"
-#include "minecraft_server.h"
+#include "minecraft_events.h"
 
 std::string RUN_PATH;
 
@@ -213,6 +213,8 @@ void initialize() {
 	alpha_timeEvents::setImgFolder(RUN_PATH + IMG_FILES_PATH);
 	alpha_timeEvents::loadSetTimeMention(RUN_PATH);
 
+	alpha_mcEvents::loadMCServers(RUN_PATH);
+
 	realesrganExe::setRunPath(RUN_PATH);
 }
 
@@ -241,6 +243,7 @@ void setEvents(msgEventRegister& event_reg) {
 	event_reg.append(register_imgSearch);
 	event_reg.append(register_phSTEvent);
 	event_reg.append(register_xibaoEvent);
+	event_reg.append(register_MCServerEvents);
 	//Only available with valid graphic card.
 	//event_reg.append(register_imgEnhance);
 }

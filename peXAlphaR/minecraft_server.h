@@ -5,6 +5,7 @@
 #include "cq_connection.h"
 #include <string>
 #include <WS2tcpip.h>
+#include <json/json.h>
 
 class ProtocolBuffer {
 public:
@@ -31,7 +32,10 @@ private:
 
 SOCKET& operator>>(SOCKET& sck, varInt& dst);
 
+int connectServer(SOCKET& sock, const std::string& ip, uint16_t port = 25565, int protocol = IPPROTO_TCP);
+
 int getServerInfo(const std::string& ip, uint16_t port, std::string& info);
+int getServerInfo(const std::string& ip, uint16_t port, Json::Value& info);
 
 #endif // !MINECRAFT_SERVER_H
 

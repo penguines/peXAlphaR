@@ -104,6 +104,29 @@ SOCKET& operator>>(SOCKET& sck, varInt& dst){
     return sck;
 }
 
+int connectServer(SOCKET& sock, const std::string& ip, uint16_t port, int protocol){
+    sockaddr_in serv_addr;
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, protocol)) < 0) {
+        return SOCKET_CREATE_ERROR;
+    }
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip.c_str(), &(serv_addr.sin_addr)) <= 0) {
+        hostent* hptr = nullptr;
+        hptr = gethostbyname(ip.c_str());
+        if (hptr == nullptr) {
+            return SOCKET_ADDRESS_ERROR;
+        }
+        serv_addr.sin_addr.S_un.S_addr = inet_addr(inet_ntoa(*(in_addr*)hptr->h_addr_list[0]));
+    }
+    int client;
+    if ((client = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) {
+        return SOCKET_CONNECT_ERROR;
+    }
+    return 0;
+}
+
 int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
 
     varInt protocol_version(-1);
@@ -133,20 +156,7 @@ int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
     const char state_requestpack[2] = { 1, 0 };
 
     SOCKET sock;
-    sockaddr_in serv_addr;
-    
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        return SOCKET_CREATE_ERROR;
-    }
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
-    if (inet_pton(AF_INET, ip.c_str(), &(serv_addr.sin_addr)) <= 0) {
-        return SOCKET_ADDRESS_ERROR;
-    }
-    int client;
-    if ((client = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) {
-        return SOCKET_CONNECT_ERROR;
-    }
+    connectServer(sock, ip, port);
 
     send(sock, (const char*)hs_data.data(), hs_data.size(), 0);
     send(sock, state_requestpack, 2, 0);
@@ -167,4 +177,22 @@ int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
     }
     closesocket(sock);
     return 0;
+}
+
+int getServerInfo(const std::string& ip, uint16_t port, Json::Value& info){
+    std::string dat;
+    int tmp = getServerInfo(ip, port, dat);
+    if (tmp == 0) {
+        //Ping success
+        Json::Reader rd;
+        if (rd.parse(dat, info)) {
+            //Parse success
+            return 0;
+        }
+        else {
+            //Parse failed.
+            return 1;
+        }
+    }
+    return tmp;
 }
