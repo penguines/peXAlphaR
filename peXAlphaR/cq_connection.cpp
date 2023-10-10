@@ -1,13 +1,13 @@
 #include "cq_connection.h"
 
-void createConnection(SOCKET& sock, const char* host, int port, int protocol){
+int createConnection(SOCKET& sock, const char* host, int port, int protocol){
 	sock = socket(AF_INET, SOCK_STREAM, protocol);
 	sockaddr_in sockAddr;
 	memset(&sockAddr, 0, sizeof(sockAddr));
 	sockAddr.sin_family = AF_INET;
 	sockAddr.sin_addr.s_addr = inet_addr(host);
 	sockAddr.sin_port = htons(port);
-	bind(sock, (SOCKADDR*)&sockAddr, sizeof(SOCKADDR));
+	return bind(sock, (sockaddr*)&sockAddr, sizeof(sockaddr));
 }
 
 void recvJsonMessage(SOCKET& sock, std::string& recv_msg, size_t buffer_size){

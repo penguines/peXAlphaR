@@ -25,6 +25,7 @@
 #include "alpha_basic_event.h"
 #include "alpha_cv_event.h"
 #include "alpha_time.h"
+#include "minecraft_server.h"
 
 std::string RUN_PATH;
 

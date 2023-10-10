@@ -1,68 +1,170 @@
 #include "minecraft_server.h"
 
-uint64_t toVarInt(uint32_t val){
-    uint64_t var_int = 0;
-    while (1) {
-        var_int <<= 8;
-        uint8_t tmp = val & VARINT_SEGMENT_BITS;
-        val >>= 7;
-        var_int |= tmp;
-        if (val) {
-            var_int |= VARINT_CONTINUE_BIT;
+ProtocolBuffer::ProtocolBuffer(){
+    this->sz = 0;
+    this->pos = 0;
+    this->buffer = nullptr;
+}
+
+ProtocolBuffer::ProtocolBuffer(uint32_t _size){
+    this->sz = _size;
+    this->pos = 0;
+    this->buffer = (uint8_t*)malloc(_size);
+    if (this->buffer != nullptr) {
+        memset(this->buffer, 0, _size);
+    }
+}
+
+ProtocolBuffer::~ProtocolBuffer(){
+    if (this->buffer != nullptr) {
+        free(this->buffer);
+    }
+}
+
+uint32_t ProtocolBuffer::size() const{
+    return this->sz;
+}
+
+const uint8_t* ProtocolBuffer::data() const{
+    return this->buffer;
+}
+
+uint8_t ProtocolBuffer::resize(uint32_t _size){
+    if (_size != this->sz) {
+        uint8_t* ptr = (uint8_t*)realloc(this->buffer, _size);
+        if (ptr != nullptr) {
+            this->buffer = ptr;
+            this->sz = _size;
+            return 1;
         }
         else {
-            break;
+            return 0;
         }
     }
-    return var_int;
+    return 1;
 }
 
-uint8_t usedBytes(uint64_t val){
-    if (val == 0) {
-        return 1;
-    }
-    for (int8_t i = 8; i > 0; i--) {
-        if (val & 0xFF00000000000000) {
-            return i;
-        }
-        else {
-            val <<= 8;
-        }
+void ProtocolBuffer::clear(){
+    if (this->buffer != nullptr) {
+        memset(this->buffer, 0, this->sz);
+        this->pos = 0;
     }
 }
 
-void writeDataInt64(uint8_t** data, uint64_t val, uint32_t* pos){
-    for (int32_t i = usedBytes(val) - 1; i >= 0; i--) {
-        *(*data + *pos) = (val >> (i << 3)) & 0xFF;
-        *pos = *pos + 1;
+ProtocolBuffer& ProtocolBuffer::append(uint8_t val){
+    if (this->pos >= this->sz) {
+        this->resize(this->pos + 1);
     }
+    this->buffer[this->pos] = val;
+    this->pos++;
+    return *this;
 }
 
-void writeDataStr(uint8_t** data, const std::string& str, uint32_t* pos){
+ProtocolBuffer& ProtocolBuffer::append(const varInt& val){
+    uint8_t sz_val = val.size();
+    if (sz_val == 0) {
+        return *this;
+    }
+    if (this->pos + sz_val - 1 >= this->sz) {
+        this->resize(this->pos + sz_val);
+    }
+    const uint8_t* ptr_val = val.value();
+    for (uint8_t i = 0; i < sz_val; i++) {
+        *(this->buffer + this->pos) = *(ptr_val + i);
+        this->pos++;
+    }
+    return *this;
+}
+
+ProtocolBuffer& ProtocolBuffer::append(const std::string& str){
+    uint32_t len = str.length();
+    if (len == 0) {
+        return *this;
+    }
+    if (this->pos + len - 1 >= this->sz) {
+        this->resize(this->pos + len);
+    }
     for (auto iter = str.cbegin(); iter != str.cend(); iter++) {
-        *(*data + *pos) = *iter;
-        *pos = *pos + 1;
+        *(this->buffer + this->pos) = *iter;
+        this->pos++;
     }
+    return *this;
 }
 
-void getServerInfo(const std::string& ip, uint16_t port, std::string& info){
-    uint64_t protocol_version = toVarInt(-1);
+SOCKET& operator>>(SOCKET& sck, varInt& dst){
+    uint8_t tmp = VARINT_CONTINUE_BIT;
+    uint8_t recv_ints[5] = { 0 };
+    uint8_t i = 0;
+    while (tmp & VARINT_CONTINUE_BIT) {
+        recv(sck, (char*)&tmp, 1, 0);
+        recv_ints[i] = tmp;
+        i++;
+    }
+    dst.assign(recv_ints, i);
+    return sck;
+}
+
+int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
+
+    varInt protocol_version(-1);
     uint8_t packet_id = 0;
+
     uint32_t ip_length = ip.length();
-    uint32_t ip_len_vi = toVarInt(ip_length);
-    uint8_t next_state = toVarInt(1);
+    varInt ip_len_vi(ip_length);
+
+    varInt next_state(1);
     uint32_t data_length =  1   //packet_id
-                            + usedBytes(protocol_version)
-                            + usedBytes(ip_len_vi)
+                            + protocol_version.size()
+                            + ip_len_vi.size()
                             + ip_length
                             + 2     //port
                             + 1;    //nextState
-    uint32_t data_len_vi = toVarInt(data_length);
-    uint32_t request_length = data_length + usedBytes(data_len_vi);
+    varInt data_len_vi(data_length);
+    uint32_t request_length = data_length + data_len_vi.size();
     
-    uint8_t* data = (uint8_t*)malloc(request_length);
-    uint32_t pos = 0;
-    writeDataInt64(&data, toVarInt(request_length), &pos);
-    writeDataInt64(&data, packet_id, &pos);
-    //writeDataInt64();
+    ProtocolBuffer hs_data(request_length);
+    hs_data.append(data_len_vi)\
+           .append(packet_id)\
+           .append(protocol_version)\
+           .append(ip_len_vi)\
+           .append(ip)\
+           .append((uint8_t)(port >> 8)).append((uint8_t)(port & 0xFF))\
+           .append(next_state);
+    const char state_requestpack[2] = { 1, 0 };
+
+    SOCKET sock;
+    sockaddr_in serv_addr;
+    
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        return SOCKET_CREATE_ERROR;
+    }
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, ip.c_str(), &(serv_addr.sin_addr)) <= 0) {
+        return SOCKET_ADDRESS_ERROR;
+    }
+    int client;
+    if ((client = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) {
+        return SOCKET_CONNECT_ERROR;
+    }
+
+    send(sock, (const char*)hs_data.data(), hs_data.size(), 0);
+    send(sock, state_requestpack, 2, 0);
+
+    varInt pack_length, recv_vi;
+    uint32_t recv_length;
+    sock >> pack_length;
+    recv(sock, (char*)&packet_id, 1, 0);
+    sock >> recv_vi;
+    recv_vi >> recv_length;
+    //recv json
+    char* buf = (char*)malloc(recv_length + 1);
+    uint32_t recv_bytes = 0;
+    while (recv_bytes < recv_length) {
+        memset(buf, 0, recv_length + 1);
+        recv_bytes += recv(sock, buf, recv_length, 0);
+        info.append(buf);
+    }
+    closesocket(sock);
+    return 0;
 }
