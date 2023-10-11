@@ -84,3 +84,35 @@ int setEmptyJson(Json::Value& _json, const std::string& _key, const Json::Value&
 	return 0;
 }
 
+Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, int value){
+	if (json_arraylike.isArray()) {
+		for (auto iter = json_arraylike.begin(); iter != json_arraylike.end(); iter++) {
+			if ((*iter)[keyword].asInt() == value) {
+				return *iter;
+			}
+		}
+	}
+	return const_cast<Json::Value&>(Json::Value::nullSingleton());
+}
+
+Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, uint64_t value){
+	if (json_arraylike.isArray()) {
+		for (auto iter = json_arraylike.begin(); iter != json_arraylike.end(); iter++) {
+			if ((*iter)[keyword].asUInt64() == value) {
+				return *iter;
+			}
+		}
+	}
+	return const_cast<Json::Value&>(Json::Value::nullSingleton());
+}
+
+const Json::Value& getJsonByKeyword(const Json::Value& json_arraylike, const std::string& keyword, uint64_t value) {
+	if (json_arraylike.isArray()) {
+		for (auto iter = json_arraylike.begin(); iter != json_arraylike.end(); iter++) {
+			if ((*iter)[keyword].asUInt64() == value) {
+				return *iter;
+			}
+		}
+	}
+	return Json::Value::nullSingleton();
+}

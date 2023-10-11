@@ -37,4 +37,9 @@ int getJsonIndexByKeyword(const std::string& keyword,
 
 int setEmptyJson(Json::Value& _json, const std::string& _key, const Json::Value& _default);
 
+Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, int value);
+
+Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, uint64_t value);
+const Json::Value& getJsonByKeyword(const Json::Value& json_arraylike, const std::string& keyword, uint64_t value);
+
 #endif // !LOAD_FROM_JSON_H
