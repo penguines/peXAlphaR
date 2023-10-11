@@ -22,24 +22,27 @@ int addMCServer(CQmsg& msg){
     std::regex reg(_U(ADD_MCSERVER_REGEX));
     std::smatch reg_result;
     std::regex_search(msg.text(), reg_result, reg);
-    std::string ip;
+    std::string ip, custom_description;
     uint16_t port = 0;
     ip = reg_result[1].str();
-    if (reg_result.size() == 4) {
-        port = atoi(reg_result[3].str().c_str());
-    }
+    port = atoi(reg_result[3].str().c_str());
     if (port == 0) {
         port = 25565;
     }
+    custom_description = reg_result[5];
 
     CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
     uint64_t& grp_id = grp_msg.group->u64_id;
-    std::string reply_msg(_G("成功添加服务器，ip: "));
+    std::string reply_msg(_U("成功添加服务器，ip: "));
     reply_msg.append(ip).append(":").append(std::to_string(port));
-    
+    if (!custom_description.empty()) {
+        reply_msg.append("\n").append(custom_description);
+    }
+
     Json::Value server_tmp;
     server_tmp["ip"] = ip;
     server_tmp["port"] = port;
+    server_tmp["description"] = custom_description;
     for (int i = 0; i < server_list.size(); i++) {
         Json::Value& servers = server_list[i];
         uint64_t gid_tmp;
@@ -48,7 +51,7 @@ int addMCServer(CQmsg& msg){
             server_tmp["index"] = servers["servers"].size() + 1;
             servers["servers"].append(server_tmp);
             MCServerList.save();
-            sendGroupMsg(grp_msg.group->id, reply_msg, 0);
+            sendGroupMsg(grp_msg.group->id, reply_msg, 1);
             return 1;
         }
     }
@@ -58,7 +61,7 @@ int addMCServer(CQmsg& msg){
     json_tmp["servers"].append(server_tmp);
     server_list.append(json_tmp);
     MCServerList.save();
-    sendGroupMsg(grp_msg.group->id, reply_msg, 0);
+    sendGroupMsg(grp_msg.group->id, reply_msg, 1);
     return 1;
 }
 
@@ -128,7 +131,7 @@ int showMCServerInfo(CQmsg& msg){
                     ip = (*iter)["ip"].asString();
                     port = (*iter)["port"].asInt();
                     int state_ret = getServerInfo(ip, port, server_info);
-                    reply_msg.append(_G("服务器序号: ")).append(std::to_string((*iter)["index"].asInt())).append("\n");
+                    reply_msg.append(_U("服务器序号: ")).append(std::to_string((*iter)["index"].asInt())).append("\n");
                     reply_msg.append("ip: ").append(ip).append(":").append(std::to_string(port)).append("\n");
                     if (server_info.isMember("description")) {
                         description_json = server_info["description"];
@@ -146,15 +149,15 @@ int showMCServerInfo(CQmsg& msg){
                             description_str = description_json["translate"].asString();
                         }
                         else {
-                            description_str = _G("【数据删除】");
+                            description_str = _U("【数据删除】");
                         }
                         players = server_info["players"];
-                        reply_msg.append(_G("描述: ")).append(description_str).append("\n");
-                        reply_msg.append(_G("版本: ")).append(server_info["version"]["name"].asString()).append("\n");
-                        reply_msg.append(_G("当前在线人数: ")).append(std::to_string(players["online"].asInt()))\
+                        reply_msg.append(_U("描述: ")).append(description_str).append("\n");
+                        reply_msg.append(_U("版本: ")).append(server_info["version"]["name"].asString()).append("\n");
+                        reply_msg.append(_U("当前在线人数: ")).append(std::to_string(players["online"].asInt()))\
                                  .append("/").append(std::to_string(players["max"].asInt())).append("\n");
                         if (players.isMember("sample")) {
-                            reply_msg.append(_G("当前在线玩家: \n"));
+                            reply_msg.append(_U("当前在线玩家: \n"));
                             players_list = players["sample"];
                             for (auto pl = players_list.begin(); pl != players_list.end(); pl++) {
                                 reply_msg.append((*pl)["name"].asString()).append(", ");
@@ -164,28 +167,32 @@ int showMCServerInfo(CQmsg& msg){
                         }
                         break;
                     case SOCKET_CREATE_ERROR:
-                        reply_msg.append(_G("无法连接：SOCKET创建失败。\n"));
+                        reply_msg.append(_U("无法连接：SOCKET创建失败。\n"));
                         break;
                     case SOCKET_ADDRESS_ERROR:
-                        reply_msg.append(_G("无法连接：无效的服务器ip。\n"));
+                        reply_msg.append(_U("无法连接：无效的服务器ip。\n"));
                         break;
                     case SOCKET_CONNECT_ERROR:
-                        reply_msg.append(_G("无法连接：服务器连接失败。\n"));
+                        reply_msg.append(_U("无法连接：服务器连接失败。\n"));
                         break;
                     default:
-                        reply_msg.append(_G("无法连接：怪耶~\n"));
+                        reply_msg.append(_U("无法连接：怪耶~\n"));
                         break;
+                    }
+                    description_str = (*iter)["description"].asString();
+                    if (!description_str.empty()) {
+                        reply_msg.append(description_str).append("\n");
                     }
                     reply_msg.append("-----------------------------\n");
                 }
-                sendGroupMsg(grp_msg.group->id, reply_msg, 0);
+                sendGroupMsg(grp_msg.group->id, reply_msg, 1);
                 return 1;
             }
-            sendGroupMsg(grp_msg.group->id, _G("本群目前无服务器！"), 0);
+            sendGroupMsg(grp_msg.group->id, _U("本群目前无服务器！"), 1);
             return 0;
         }
     }
-    sendGroupMsg(grp_msg.group->id, _G("本群目前无服务器！"), 0);
+    sendGroupMsg(grp_msg.group->id, _U("本群目前无服务器！"), 1);
     return 0;
 }
 
@@ -232,7 +239,7 @@ void register_MCServerEvents(std::vector<CQMsgEvent>& event_list){
     event_tmp.tag.index = 0;
     event_tmp.tag.permission = SHOW_MCSERVER_PERMISSION;
     event_tmp.tag.name = _G("/server");
-    event_tmp.tag.example = _G("/server show\n/server add ip = [ip地址或域名，不包含端口] (port = [端口号，缺省为25565])");
+    event_tmp.tag.example = _G("/server show\n/server add ip=[ip地址或域名，不包含端口] (port=[端口号，缺省为25565]) (description=[服务器描述])\n/server remove [服务器序号]");
     event_tmp.tag.description = _G("显示/添加/删除mc服务器。");
 
     event_list.push_back(event_tmp);

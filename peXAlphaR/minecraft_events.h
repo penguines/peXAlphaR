@@ -9,7 +9,7 @@
 const std::string MC_SERVER_PATH = "data/mc_servers.json";
 
 #define ADD_MCSERVER_PERMISSION		OP_PERMISSION_LEVEL
-#define ADD_MCSERVER_REGEX			"add ip\\s*=\\s*(\\S+)\\s*(port\\s*=\\s*([0-9]+))?"
+#define ADD_MCSERVER_REGEX			"add ip\\s*=\\s*(\\S+)\\s*(port\\s*=\\s*([0-9]+))?\\s*(description\\s*=\\s*(\\S+[\\s\\S]*))?"
 
 #define REMOVE_MCSERVER_PERMISSION	OP_PERMISSION_LEVEL
 #define REMOVE_MCSERVER_REGEX		"remove ([1-9][0-9]*)"
