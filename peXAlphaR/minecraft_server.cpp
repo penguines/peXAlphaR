@@ -124,7 +124,7 @@ int connectServer(SOCKET& sock, const std::string& ip, uint16_t port, int protoc
     if ((client = connect(sock, (sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) {
         return SOCKET_CONNECT_ERROR;
     }
-    return 0;
+    return SOCKET_CONNECT_SUCCESS;
 }
 
 int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
@@ -136,7 +136,7 @@ int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
     varInt ip_len_vi(ip_length);
 
     varInt next_state(1);
-    uint32_t data_length =  1   //packet_id
+    uint32_t data_length =  1       //packet_id
                             + protocol_version.size()
                             + ip_len_vi.size()
                             + ip_length
@@ -156,7 +156,10 @@ int getServerInfo(const std::string& ip, uint16_t port, std::string& info){
     const char state_requestpack[2] = { 1, 0 };
 
     SOCKET sock;
-    connectServer(sock, ip, port);
+    int conn = connectServer(sock, ip, port);
+    if (conn != SOCKET_CONNECT_SUCCESS) {
+        return conn;
+    }
 
     send(sock, (const char*)hs_data.data(), hs_data.size(), 0);
     send(sock, state_requestpack, 2, 0);

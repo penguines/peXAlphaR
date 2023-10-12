@@ -14,6 +14,9 @@ const std::string MC_SERVER_PATH = "data/mc_servers.json";
 #define REMOVE_MCSERVER_PERMISSION	OP_PERMISSION_LEVEL
 #define REMOVE_MCSERVER_REGEX		"remove ([1-9][0-9]*)"
 
+#define EDIT_MCSERVER_PERMISSION	OP_PERMISSION_LEVEL
+#define EDIT_MCSERVER_REGEX			"edit ([1-9][0-9]*)\\s*(ip\\s*=\\s*(\\S+))?\\s*(port\\s*=\\s*([0-9]+))?\\s*(description\\s*=\\s*(\\S+[\\s\\S]*))?"
+
 #define SHOW_MCSERVER_PERMISSION	NORMAL_PERMISSION_LEVEL
 #define SHOW_MCSERVER_REGEX			"show"
 
@@ -24,6 +27,8 @@ namespace alpha_mcEvents {
 int addMCServer(CQmsg& msg);
 
 int removeMCServer(CQmsg& msg);
+
+int editMCServer(CQmsg& msg);
 
 int showMCServerInfo(CQmsg& msg);
 

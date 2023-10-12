@@ -4,6 +4,7 @@
 #include <string>
 #include <WinSock2.h>
 
+#define SOCKET_CONNECT_SUCCESS	0
 #define SOCKET_CREATE_ERROR		-1
 #define SOCKET_ADDRESS_ERROR	-2
 #define SOCKET_CONNECT_ERROR	-4
