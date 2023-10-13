@@ -9,6 +9,8 @@
 #define SOCKET_ADDRESS_ERROR	-2
 #define SOCKET_CONNECT_ERROR	-4
 
+#define SOCKET_RECV_LENGTH_MAX	65536
+
 #define HTTP_200_OK_RES "HTTP/1.1 200 OK\r\nhead:123\r\n\r\nbody"
 
 int createConnection(SOCKET& sock, const char* host, int port, int protocol = IPPROTO_TCP);
