@@ -2,7 +2,9 @@
 
 using namespace alphaCV;
 static std::string img_folder_path;
+static std::string run_folder_path;
 static cv::Mat xibao_bkg;
+static std::vector<headData> cascade_heads;
 
 void alpha_cvEvent::setImgFolder(const std::string& folder_path) {
 	img_folder_path = folder_path;
@@ -10,6 +12,19 @@ void alpha_cvEvent::setImgFolder(const std::string& folder_path) {
 
 void alpha_cvEvent::initImages(){
 	xibao_bkg = cv::imread(img_folder_path + XIBAO_BKG_FILE, cv::IMREAD_COLOR);
+}
+
+void alpha_cvEvent::loadCatcatHeads() {
+	cascade_heads.emplace_back();
+	cascade_heads.back().load(25, 83, 63, 120, (img_folder_path + "head1.png").c_str(), cv::Point(38, 83), cv::Point(72, 81));
+	cascade_heads.emplace_back();
+	cascade_heads.back().load(57, 172, 108, 214, (img_folder_path + "head2.png").c_str(), cv::Point(76, 142), cv::Point(143, 142));
+	cascade_heads.emplace_back();
+	cascade_heads.back().load(151, 409, 319, 547, (img_folder_path + "head3.png").c_str(), cv::Point(212, 390), cv::Point(365, 390));
+}
+
+void alpha_cvEvent::setRunFolder(const std::string& folder_path){
+	run_folder_path = folder_path;
 }
 
 char isASCIIStr(const char* str) {
@@ -118,9 +133,35 @@ void xibaoTextGen(const CQmsg& msg){
 	cv::Mat img;
 	xibaoText(xibao_bkg, img, text);
 
-	CQJsonMsg send_msg;
-	send_msg += CQJmsg::image(img);
+	CQJsonMsg send_msg(CQJmsg::image(img));
 	sendReply(msg, send_msg.getJson());
+}
+
+void changeHeadProc(std::string group_id, std::string img_filename, std::string cascade_face, std::string cascade_eyes, std::vector<int> head_index, int head_num){
+	std::string img_path;
+	size_t img_size;
+	getImage(img_filename, img_path, img_size);
+	img_size >>= 10;
+	PRINTLOG("[接头霸王] 图像大小: %d kb", img_size);
+	if (img_size > 2048) {
+		sendGroupMsg(group_id, _G("图片过大，请尝试缩小图片(Max 2MB)。"), 0);
+		return;
+	}
+	cv::Mat img = cv::imread(img_path, cv::IMREAD_COLOR);
+	int weld_num = detectChangeHeads(img, cascade_heads, cascade_face, cascade_eyes, head_index.data(), true, head_num);
+	PRINTLOG("[接头霸王] 发现%d个焊点!\n", weld_num);
+
+	if (weld_num) {
+		CQJsonMsg reply_msg(_U("发现了"));
+		reply_msg.append(std::to_string(weld_num)).append(_U("个焊接点！\n"));
+		std::string img_temp_path = img_folder_path + img_filename + ".jpg";
+		cv::imwrite(img_temp_path, img);
+		reply_msg.append(CQJmsg::image("file:///" + img_temp_path));
+		sendGroupMsg(group_id, reply_msg.getJson());
+		remove(img_temp_path.c_str());
+		return;
+	}
+	sendGroupMsg(group_id, _G("未发现焊接点！"), 0);
 }
 
 int phSTEvent(CQmsg& msg){
@@ -129,7 +170,7 @@ int phSTEvent(CQmsg& msg){
 	}
 
 	std::thread thread_tmp(phStyledTextGen, std::cref(msg));
-	thread_tmp.join();
+	thread_tmp.detach();
 	return 1;
 }
 
@@ -155,7 +196,7 @@ int xibaoEvent(CQmsg& msg){
 	}
 
 	std::thread thread_tmp(xibaoTextGen, std::cref(msg));
-	thread_tmp.join();
+	thread_tmp.detach();
 	return 1;
 }
 
@@ -175,3 +216,55 @@ void register_xibaoEvent(std::vector<CQMsgEvent>& event_list){
 	event_list.push_back(event_tmp);
 }
 
+int changeHead(CQmsg& msg){
+	if (!checkPermission(msg, CHANGE_HEAD_PERMISSION)) {
+		return 0;
+	}
+
+	const Json::Value& msg_image = getJsonByKeyword(msg.content, "type", "image");
+	if (msg_image.empty()) {
+		return 0;
+	}
+	std::string img_file(msg_image["data"]["file"].asString());
+	std::string cascade_face = run_folder_path + CASCADE_FACE_PATH;
+	std::string cascade_eyes = run_folder_path + CASCADE_EYES_PATH;
+	std::vector<std::string> msg_split;
+	std::string msg_text = msg.uniText();
+	int head_num = 1;
+	std::vector<int> head_index;
+
+	split(msg_text, " ", msg_split);
+	if (msg_split.size() >= 2) {
+		head_num = atoi(msg_split[1].c_str());
+		for (int i = 2; i < msg_split.size(); i++) {
+			head_index.emplace_back(atoi(msg_split[i].c_str()));
+		}
+		if (head_num > head_index.size()) {
+			head_num = head_index.size();
+		}
+	}
+	else {
+		head_index.emplace_back(0);
+	}
+	CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
+
+	std::thread changehead_thread(changeHeadProc, grp_msg.group->id, img_file, cascade_face, cascade_eyes, head_index, head_num);
+	changehead_thread.detach();
+	return 1;
+}
+
+void register_changeHead(std::vector<CQMsgEvent>& event_list) {
+	CQMsgEvent event_tmp;
+	event_tmp.event_func = changeHead;
+	event_tmp.event_type = EVENT_GROUP;
+	event_tmp.trig_type = MSG_CONTAIN;
+	event_tmp.trig_msg.emplace_back(_G(CHANGE_HEAD_MSG));
+	event_tmp.msg_codetype = CODE_UTF8;
+	event_tmp.tag.index = 0;
+	event_tmp.tag.permission = CHANGE_HEAD_PERMISSION;
+	event_tmp.tag.name = _G("接头");
+	event_tmp.tag.example = _G("接头[图片]");
+	event_tmp.tag.description = _G("接头霸王凯露.jpg");
+
+	event_list.push_back(event_tmp);
+}

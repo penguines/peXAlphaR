@@ -116,3 +116,25 @@ const Json::Value& getJsonByKeyword(const Json::Value& json_arraylike, const std
 	}
 	return Json::Value::nullSingleton();
 }
+
+Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, const std::string& value){
+	if (json_arraylike.isArray()) {
+		for (auto iter = json_arraylike.begin(); iter != json_arraylike.end(); iter++) {
+			if ((*iter)[keyword].asString() == value) {
+				return *iter;
+			}
+		}
+	}
+	return const_cast<Json::Value&>(Json::Value::nullSingleton());
+}
+
+const Json::Value& getJsonByKeyword(const Json::Value& json_arraylike, const std::string& keyword, const std::string& value) {
+	if (json_arraylike.isArray()) {
+		for (auto iter = json_arraylike.begin(); iter != json_arraylike.end(); iter++) {
+			if ((*iter)[keyword].asString() == value) {
+				return *iter;
+			}
+		}
+	}
+	return Json::Value::nullSingleton();
+}

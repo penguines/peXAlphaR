@@ -120,6 +120,9 @@
     <ClCompile Include="minecraft_events.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="alpha_cv_cascade.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\JsonCPP\include\json\json.h">
@@ -222,6 +225,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="minecraft_events.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="alpha_cv_cascade.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

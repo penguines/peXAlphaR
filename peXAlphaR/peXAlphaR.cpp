@@ -205,7 +205,9 @@ void initialize() {
 	alpha_basicEvents::setActiveUsers(active_group_members);
 
 	alpha_cvEvent::setImgFolder(RUN_PATH + IMG_FILES_PATH);
+	alpha_cvEvent::setRunFolder(RUN_PATH);
 	alpha_cvEvent::initImages();
+	alpha_cvEvent::loadCatcatHeads();
 
 	alpha_atReply::setImgFolder(RUN_PATH + IMG_FILES_PATH);
 	alpha_atReply::loadRepliesFile(RUN_PATH);
@@ -216,6 +218,7 @@ void initialize() {
 	alpha_mcEvents::loadMCServers(RUN_PATH);
 
 	realesrganExe::setRunPath(RUN_PATH);
+
 }
 
 void setTimeEvents(timeEventRegister& event_reg){
@@ -243,6 +246,7 @@ void setEvents(msgEventRegister& event_reg) {
 	event_reg.append(register_imgSearch);
 	event_reg.append(register_phSTEvent);
 	event_reg.append(register_xibaoEvent);
+	event_reg.append(register_changeHead);
 	event_reg.append(register_MCServerEvents);
 	//Only available with valid graphic card.
 	//event_reg.append(register_imgEnhance);

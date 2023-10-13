@@ -42,4 +42,7 @@ Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& ke
 Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, uint64_t value);
 const Json::Value& getJsonByKeyword(const Json::Value& json_arraylike, const std::string& keyword, uint64_t value);
 
+Json::Value& getJsonByKeyword(Json::Value& json_arraylike, const std::string& keyword, const std::string& value);
+const Json::Value& getJsonByKeyword(const Json::Value& json_arraylike, const std::string& keyword, const std::string& value);
+
 #endif // !LOAD_FROM_JSON_H

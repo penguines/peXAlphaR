@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="alpha_basic_event.cpp" />
     <ClCompile Include="alpha_cv.cpp" />
+    <ClCompile Include="alpha_cv_cascade.cpp" />
     <ClCompile Include="alpha_cv_event.cpp" />
     <ClCompile Include="alpha_help.cpp" />
     <ClCompile Include="alpha_inits.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="alpha_basic_event.h" />
     <ClInclude Include="alpha_config.h" />
     <ClInclude Include="alpha_cv.h" />
+    <ClInclude Include="alpha_cv_cascade.h" />
     <ClInclude Include="alpha_cv_event.h" />
     <ClInclude Include="alpha_debug.h" />
     <ClInclude Include="alpha_help.h" />

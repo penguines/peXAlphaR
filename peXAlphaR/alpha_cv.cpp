@@ -196,3 +196,54 @@ void split(const std::string& str, const char* delim, std::vector<std::string>& 
 	}
 	delete[] tmp_str;
 }
+
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale) {
+	if (dst.channels() != 3 || src.channels() != 4) {
+		return 0;
+	}
+	if (scale < 0.01) {
+		return 0;
+	}
+	std::vector<cv::Mat> src_channels;
+	std::vector<cv::Mat> dst_channels;
+	cv::split(src, src_channels);
+	cv::split(dst, dst_channels);
+	CV_Assert(src_channels.size() == 4 && dst_channels.size() == 3);
+
+	if (scale < 1) {
+		src_channels[3] *= scale;
+		scale = 1;
+	}
+	for (int i = 0; i < 3; i++) {
+		dst_channels[i] = dst_channels[i].mul(255.0 / scale - src_channels[3], scale / 255.0);
+		dst_channels[i] += src_channels[i].mul(src_channels[3], scale / 255.0);
+	}
+	merge(dst_channels, dst);
+	return true;
+}
+
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, double scale) {
+	cv::Rect src_roi(0, 0, src.cols(), src.rows());
+	int srcMax_x = x + src.cols(), srcMax_y = y + src.rows();
+	if (x < 0) {
+		src_roi.width += x - 1;
+		src_roi.x = 1 - x;
+		x = 0;
+	}
+	if (y < 0) {
+		src_roi.height += y - 1;
+		src_roi.y = 1 - y;
+		y = 0;
+	}
+	if (srcMax_x >= dst.cols()) {
+		src_roi.width -= srcMax_x - dst.cols() + 1;
+	}
+	if (srcMax_y >= dst.rows()) {
+		src_roi.height -= srcMax_y - dst.rows() + 1;
+	}
+	cv::Mat img_src = src.getMat();
+	cv::Mat& img_dst = dst.getMatRef();
+	cv::Mat img_droi = img_dst(cv::Rect(x, y, src_roi.width, src_roi.height));
+	cv::Mat img_sroi = img_src(src_roi);
+	return mergeImage(img_sroi, img_droi, scale);
+}

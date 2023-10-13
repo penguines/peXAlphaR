@@ -38,4 +38,7 @@ namespace alphaCV {
 
 void split(const std::string& str, const char* delim, std::vector<std::string>& result);
 
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale);
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, double scale);
+
 #endif // !ALPHA_CV_H
