@@ -153,6 +153,69 @@ int editMCServer(CQmsg& msg){
     return 0;
 }
 
+int generateServerInfo(const Json::Value& server, std::string& info){
+    Json::Value server_info;
+    Json::Value description_json, players, players_list;
+    std::string description_str;
+    std::string ip = server["ip"].asString();
+    uint16_t port = server["port"].asInt();
+    int state_ret = getServerInfo(ip, port, server_info);
+    info.append(_U("服务器序号: ")).append(std::to_string(server["index"].asInt())).append("\n");
+    info.append("ip: ").append(ip).append(":").append(std::to_string(port)).append("\n");
+    if (server_info.isMember("description")) {
+        description_json = server_info["description"];
+    }
+    switch (state_ret)
+    {
+    case 0:
+        if (description_json.isString()) {
+            description_str = description_json.asString();
+        }
+        else if (description_json.isMember("text")) {
+            description_str = description_json["text"].asString();
+        }
+        else if (description_json.isMember("translate")) {
+            description_str = description_json["translate"].asString();
+        }
+        else {
+            description_str = _U("【数据删除】");
+        }
+        players = server_info["players"];
+        info.append(_U("描述: ")).append(description_str).append("\n");
+        info.append(_U("版本: ")).append(server_info["version"]["name"].asString()).append("\n");
+        info.append(_U("当前在线人数: ")).append(std::to_string(players["online"].asInt()))\
+            .append("/").append(std::to_string(players["max"].asInt())).append("\n");
+        if (players.isMember("sample")) {
+            info.append(_U("当前在线玩家: \n"));
+            players_list = players["sample"];
+            for (auto pl = players_list.begin(); pl != players_list.end(); pl++) {
+                info.append((*pl)["name"].asString()).append(", ");
+            }
+            info.erase(info.length() - 2, 2);
+            info.append("\n");
+        }
+        break;
+    case SOCKET_CREATE_ERROR:
+        info.append(_U("无法连接：SOCKET创建失败。\n"));
+        break;
+    case SOCKET_ADDRESS_ERROR:
+        info.append(_U("无法连接：无效的服务器ip。\n"));
+        break;
+    case SOCKET_CONNECT_ERROR:
+        info.append(_U("无法连接：服务器连接失败。\n"));
+        break;
+    default:
+        info.append(_U("无法连接：怪耶~\n"));
+        break;
+    }
+    description_str = server["description"].asString();
+    if (!description_str.empty()) {
+        info.append(description_str).append("\n");
+    }
+    info.append("--------------------------\n");
+    return 1;
+}
+
 int showMCServerInfo(CQmsg& msg){
     const Json::Value& server_list = MCServerList.json;
     if (!server_list.isArray()) {
@@ -161,6 +224,7 @@ int showMCServerInfo(CQmsg& msg){
 
     CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
     uint64_t& grp_id = grp_msg.group->u64_id;
+    std::string grp_cid_tmp = grp_msg.group->id;
     const Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
     if (servers.empty()) {
         sendGroupMsg(grp_msg.group->id, _U("本群目前无服务器！"), 1);
@@ -169,73 +233,79 @@ int showMCServerInfo(CQmsg& msg){
     const Json::Value& servers_data = servers["servers"];
     if (servers_data.isArray() && servers_data.size() > 0) {
         std::string reply_msg;
-        std::string ip;
-        uint16_t port;
         for (auto iter = servers_data.begin(); iter != servers_data.end(); iter++) {
-            Json::Value server_info;
-            Json::Value description_json, players, players_list;
-            std::string description_str;
-            ip = (*iter)["ip"].asString();
-            port = (*iter)["port"].asInt();
-            int state_ret = getServerInfo(ip, port, server_info);
-            reply_msg.append(_U("服务器序号: ")).append(std::to_string((*iter)["index"].asInt())).append("\n");
-            reply_msg.append("ip: ").append(ip).append(":").append(std::to_string(port)).append("\n");
-            if (server_info.isMember("description")) {
-                description_json = server_info["description"];
-            }
-            switch (state_ret)
-            {
-            case 0:
-                if (description_json.isString()) {
-                    description_str = description_json.asString();
-                }
-                else if (description_json.isMember("text")) {
-                    description_str = description_json["text"].asString();
-                }
-                else if (description_json.isMember("translate")) {
-                    description_str = description_json["translate"].asString();
-                }
-                else {
-                    description_str = _U("【数据删除】");
-                }
-                players = server_info["players"];
-                reply_msg.append(_U("描述: ")).append(description_str).append("\n");
-                reply_msg.append(_U("版本: ")).append(server_info["version"]["name"].asString()).append("\n");
-                reply_msg.append(_U("当前在线人数: ")).append(std::to_string(players["online"].asInt()))\
-                    .append("/").append(std::to_string(players["max"].asInt())).append("\n");
-                if (players.isMember("sample")) {
-                    reply_msg.append(_U("当前在线玩家: \n"));
-                    players_list = players["sample"];
-                    for (auto pl = players_list.begin(); pl != players_list.end(); pl++) {
-                        reply_msg.append((*pl)["name"].asString()).append(", ");
-                    }
-                    reply_msg.erase(reply_msg.length() - 2, 2);
-                    reply_msg.append("\n");
-                }
-                break;
-            case SOCKET_CREATE_ERROR:
-                reply_msg.append(_U("无法连接：SOCKET创建失败。\n"));
-                break;
-            case SOCKET_ADDRESS_ERROR:
-                reply_msg.append(_U("无法连接：无效的服务器ip。\n"));
-                break;
-            case SOCKET_CONNECT_ERROR:
-                reply_msg.append(_U("无法连接：服务器连接失败。\n"));
-                break;
-            default:
-                reply_msg.append(_U("无法连接：怪耶~\n"));
-                break;
-            }
-            description_str = (*iter)["description"].asString();
-            if (!description_str.empty()) {
-                reply_msg.append(description_str).append("\n");
-            }
-            reply_msg.append("--------------------------\n");
+            generateServerInfo(*iter, reply_msg);
         }
-        sendGroupMsg(grp_msg.group->id, reply_msg, 1);
+        sendGroupMsg(grp_cid_tmp, reply_msg, 1);
         return 1;
     }
-    sendGroupMsg(grp_msg.group->id, _U("本群目前无服务器！"), 1);
+    sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
+    return 0;
+}
+
+int showMCServerInfoByIndex(CQmsg& msg, int index){
+    const Json::Value& server_list = MCServerList.json;
+    if (!server_list.isArray()) {
+        return 0;
+    }
+
+    CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
+    uint64_t& grp_id = grp_msg.group->u64_id;
+    std::string grp_cid_tmp = grp_msg.group->id;
+    const Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
+    if (servers.empty()) {
+        sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
+        return 0;
+    }
+    const Json::Value& server_datas = servers["servers"];
+    if (!server_datas.isArray() || index > server_datas.size()) {
+        sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
+        return 0;
+    }
+    const Json::Value& show_server = getJsonByKeyword(server_datas, "index", index);
+    if (show_server.empty()) {
+        sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
+        return 0;
+    }
+    std::string reply_msg;
+    generateServerInfo(show_server, reply_msg);
+    sendGroupMsg(grp_cid_tmp, reply_msg, 1);
+    return 1;
+}
+
+int showMCServerInfoByDesc(CQmsg& msg, std::string content){
+    const Json::Value& server_list = MCServerList.json;
+    if (!server_list.isArray()) {
+        return 0;
+    }
+
+    CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
+    uint64_t& grp_id = grp_msg.group->u64_id;
+    std::string grp_cid_tmp = grp_msg.group->id;
+    const Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
+    if (servers.empty()) {
+        sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
+        return 0;
+    }
+    const Json::Value& server_datas = servers["servers"];
+    if (!server_datas.isArray()) {
+        sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
+        return 0;
+    }
+    std::string reply_msg;
+    toLowerCase(content);
+    for (auto iter = server_datas.begin(); iter != server_datas.end(); iter++) {
+        std::string desc_tmp = (*iter)["description"].asString();
+        toLowerCase(desc_tmp);
+        if (desc_tmp.find(content) != std::string::npos) {
+            generateServerInfo(*iter, reply_msg);
+        }
+    }
+    if (!reply_msg.empty()) {
+        sendGroupMsg(grp_cid_tmp, reply_msg, 1);
+        return 1;
+    }
+    sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
     return 0;
 }
 
@@ -245,7 +315,9 @@ int MCServerEvents(CQmsg& msg){
 
     std::regex reg(_U(SHOW_MCSERVER_REGEX));
     if (std::regex_search(msg_text, reg)) {
-        return showMCServerInfo(msg);
+        std::thread show_server(showMCServerInfo, std::ref(msg));
+        show_server.detach();
+        return 1;
     }
     reg.assign(_U(ADD_MCSERVER_REGEX));
     if (std::regex_search(msg_text, reg)) {
@@ -277,6 +349,31 @@ int MCServerEvents(CQmsg& msg){
             return 0;
         }
     }
+    std::smatch reg_result;
+    reg.assign(_U(SHOW_SERVER_BYINDEX_REGEX));
+    if (std::regex_search(msg_text, reg_result, reg)) {
+        if (checkPermission(msg, SHOW_MCSERVER_PERMISSION)) {
+            std::thread show_server(showMCServerInfoByIndex, std::ref(msg), atoi(reg_result[1].str().c_str()));
+            show_server.detach();
+            return 1;
+        }
+        else {
+            sendReply(msg, _G("指令权限不足。"), 0);
+            return 0;
+        }
+    }
+    reg.assign(_U(SHOW_SERVER_BYDESC_REGEX));
+    if (std::regex_search(msg_text, reg_result, reg)) {
+        if (checkPermission(msg, SHOW_MCSERVER_PERMISSION)) {
+            std::thread show_server(showMCServerInfoByDesc, std::ref(msg), reg_result[1].str());
+            show_server.detach();
+            return 1;
+        }
+        else {
+            sendReply(msg, _G("指令权限不足。"), 0);
+            return 0;
+        }
+    }
     return 0;
 }
 
@@ -292,7 +389,8 @@ void register_MCServerEvents(std::vector<CQMsgEvent>& event_list){
     event_tmp.tag.index = 0;
     event_tmp.tag.permission = SHOW_MCSERVER_PERMISSION;
     event_tmp.tag.name = _G("/server");
-    event_tmp.tag.example = _G("\n/server show\n/server add ip=[ip地址或域名，不包含端口] (port=[端口号，缺省为25565]) (description=[服务器描述])\n/server remove [服务器序号]");
+    event_tmp.tag.example = _G("\n/server show|list|[服务器序号]|[服务器描述内容]\n");
+    event_tmp.tag.example.append(_G("/server add ip=[ip地址或域名，不包含端口] (port=[端口号，缺省为25565]) (description=[服务器描述])\n/server remove [服务器序号]"));
     event_tmp.tag.example.append(_G("/server edit (ip=[ip地址或域名，不包含端口]) (port=[端口号]) (description=[服务器描述])"));
     event_tmp.tag.description = _G("显示/添加/删除/编辑mc服务器。");
 
