@@ -2,7 +2,7 @@
 
 
 void headChange(cv::InputOutputArray img, cv::Rect face_roi, cv::InputArray head_img
-	, int faceLB_x, int faceUB_x, int faceLB_y, int faceUB_y) {
+	, int faceLB_x, int faceUB_x, int faceLB_y, int faceUB_y, mergeMode mg_mode) {
 	CV_Assert(head_img.channels() == 4 && face_roi.height != 0 && face_roi.width != 0);
 	cv::Mat head_tmp;
 	double kx, ky;
@@ -15,12 +15,12 @@ void headChange(cv::InputOutputArray img, cv::Rect face_roi, cv::InputArray head
 	placeX = face_roi.x - LB_x1;
 	placeY = face_roi.y - LB_y1;
 	cv::resize(head_img, head_tmp, cv::Size(), kx, ky);
-	mergeImage(head_tmp, img, placeX, placeY, 1.0);
+	mergeImage(head_tmp, img, placeX, placeY, 1.0, mg_mode);
 }
 
 void headChange(cv::InputOutputArray img, cv::Rect face_roi, cv::InputArray head_img
 	, int faceLB_x, int faceUB_x, int faceLB_y, int faceUB_y, const cv::Point& leftEyeHead, const cv::Point& rightEyeHead
-	, const cv::Point& leftEyeCentre, const cv::Point& rightEyeCentre) {
+	, const cv::Point& leftEyeCentre, const cv::Point& rightEyeCentre, mergeMode mg_mode) {
 	CV_Assert(head_img.channels() == 4 && face_roi.height != 0 && face_roi.width != 0);
 	cv::Mat head_tmp;
 	double kx, ky;
@@ -54,17 +54,17 @@ void headChange(cv::InputOutputArray img, cv::Rect face_roi, cv::InputArray head
 	placeX = leftEyeCentre.x - LB_x1;
 	placeY = leftEyeCentre.y - LB_y1;
 
-	mergeImage(rotated_head, img, placeX, placeY, 1.0);
+	mergeImage(rotated_head, img, placeX, placeY, 1.0, mg_mode);
 }
 
 void headChange(cv::InputOutputArray img, cv::Rect faceROI, const headData& head) {
 	headChange(img, faceROI, head.img
-		, head.faceLB_x, head.faceUB_x, head.faceLB_y, head.faceUB_y);
+		, head.faceLB_x, head.faceUB_x, head.faceLB_y, head.faceUB_y, head.mode);
 }
 
 void headChange(cv::InputOutputArray img, cv::Rect faceROI, const headData& head, const cv::Point& leftEyeCentre, const cv::Point& rightEyeCentre) {
 	headChange(img, faceROI, head.img, head.faceLB_x, head.faceUB_x, head.faceLB_y, head.faceUB_y
-		, head.leftEyeHead, head.rightEyeHead, leftEyeCentre, rightEyeCentre);
+		, head.leftEyeHead, head.rightEyeHead, leftEyeCentre, rightEyeCentre, head.mode);
 }
 
 double pointDistance(const cv::Point& point1, const cv::Point& point2) {
@@ -72,7 +72,15 @@ double pointDistance(const cv::Point& point1, const cv::Point& point2) {
 	return (double)sqrt(dx * dx + dy * dy);
 }
 
-void headData::load(int facelx, int faceux, int facely, int faceuy, cv::InputArray headImg, const cv::Point& leftEye, const cv::Point& rightEye) {
+headData::headData(){
+	this->faceLB_x = 0;
+	this->faceLB_y = 0;
+	this->faceUB_x = 0;
+	this->faceUB_y = 0;
+	this->mode = MERGE_ADD;
+}
+
+void headData::load(int facelx, int faceux, int facely, int faceuy, cv::InputArray headImg, const cv::Point& leftEye, const cv::Point& rightEye, mergeMode md) {
 	this->faceLB_x = facelx;
 	this->faceUB_x = faceux;
 	this->faceLB_y = facely;
@@ -80,9 +88,10 @@ void headData::load(int facelx, int faceux, int facely, int faceuy, cv::InputArr
 	headImg.copyTo(this->img);
 	this->leftEyeHead = leftEye;
 	this->rightEyeHead = rightEye;
+	this->mode = md;
 }
 
-void headData::load(int facelx, int faceux, int facely, int faceuy, const std::string& headImgPath, const cv::Point& leftEye, const cv::Point& rightEye) {
+void headData::load(int facelx, int faceux, int facely, int faceuy, const std::string& headImgPath, const cv::Point& leftEye, const cv::Point& rightEye, mergeMode md) {
 	this->faceLB_x = facelx;
 	this->faceUB_x = faceux;
 	this->faceLB_y = facely;
@@ -90,6 +99,7 @@ void headData::load(int facelx, int faceux, int facely, int faceuy, const std::s
 	this->img = cv::imread(headImgPath, cv::IMREAD_UNCHANGED);
 	this->leftEyeHead = leftEye;
 	this->rightEyeHead = rightEye;
+	this->mode = md;
 }
 
 //-----------------------------------------------------------------------------------

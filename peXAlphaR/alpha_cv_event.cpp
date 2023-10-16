@@ -21,6 +21,10 @@ void alpha_cvEvent::loadCatcatHeads() {
 	cascade_heads.back().load(57, 172, 108, 214, (img_folder_path + "head2.png").c_str(), cv::Point(76, 142), cv::Point(143, 142));
 	cascade_heads.emplace_back();
 	cascade_heads.back().load(151, 409, 319, 547, (img_folder_path + "head3.png").c_str(), cv::Point(212, 390), cv::Point(365, 390));
+	cascade_heads.emplace_back();
+	cascade_heads.back().load(69, 221, 61, 244, (img_folder_path + "head4.png").c_str(), cv::Point(96, 90), cv::Point(196, 90), MERGE_ADD);
+	cascade_heads.emplace_back();
+	cascade_heads.back().load(69, 221, 61, 244, (img_folder_path + "head5.png").c_str(), cv::Point(96, 90), cv::Point(196, 90), MERGE_ADD);
 }
 
 void alpha_cvEvent::setRunFolder(const std::string& folder_path){

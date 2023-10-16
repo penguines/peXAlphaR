@@ -197,7 +197,7 @@ void split(const std::string& str, const char* delim, std::vector<std::string>& 
 	delete[] tmp_str;
 }
 
-int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale) {
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale, mergeMode method) {
 	if (dst.channels() != 3 || src.channels() != 4) {
 		return 0;
 	}
@@ -214,15 +214,32 @@ int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale) {
 		src_channels[3] *= scale;
 		scale = 1;
 	}
-	for (int i = 0; i < 3; i++) {
-		dst_channels[i] = dst_channels[i].mul(255.0 / scale - src_channels[3], scale / 255.0);
-		dst_channels[i] += src_channels[i].mul(src_channels[3], scale / 255.0);
+	cv::Mat alpha_tmp;
+	switch (method) {
+	case MERGE_ADD:
+		for (int i = 0; i < 3; i++) {
+			dst_channels[i] = dst_channels[i].mul(255.0 / scale - src_channels[3], scale / 255.0);
+			dst_channels[i] += src_channels[i].mul(src_channels[3], scale / 255.0);
+		}
+		break;
+	case MERGE_MULTIPLY:
+		src_channels[3].convertTo(alpha_tmp, CV_32FC1, scale / 255.);
+		for (int i = 0; i < 3; i++) {
+			cv::Mat src_tmp, dst_tmp;
+			dst_channels[i].convertTo(dst_tmp, CV_32FC1, 1. / 255.);
+			src_channels[i].convertTo(src_tmp, CV_32FC1, 1. / 255.);
+			//dst_tmp = dst_tmp.mul(1. - alpha_tmp);
+			//src_tmp = src_tmp.mul(alpha_tmp);
+			dst_tmp = dst_tmp.mul(src_tmp);
+			dst_tmp.convertTo(dst_channels[i], CV_8UC1, 255);
+		}
+		break;
 	}
 	merge(dst_channels, dst);
 	return true;
 }
 
-int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, double scale) {
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, double scale, mergeMode method) {
 	cv::Rect src_roi(0, 0, src.cols(), src.rows());
 	int srcMax_x = x + src.cols(), srcMax_y = y + src.rows();
 	if (x < 0) {
@@ -245,5 +262,5 @@ int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, doubl
 	cv::Mat& img_dst = dst.getMatRef();
 	cv::Mat img_droi = img_dst(cv::Rect(x, y, src_roi.width, src_roi.height));
 	cv::Mat img_sroi = img_src(src_roi);
-	return mergeImage(img_sroi, img_droi, scale);
+	return mergeImage(img_sroi, img_droi, scale, method);
 }

@@ -38,7 +38,9 @@ namespace alphaCV {
 
 void split(const std::string& str, const char* delim, std::vector<std::string>& result);
 
-int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale);
-int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, double scale);
+typedef enum mergeMode { MERGE_ADD = 1, MERGE_MULTIPLY = 2 };
+
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, double scale, mergeMode method = MERGE_ADD);
+int mergeImage(cv::InputArray src, cv::InputOutputArray dst, int x, int y, double scale, mergeMode method = MERGE_ADD);
 
 #endif // !ALPHA_CV_H
