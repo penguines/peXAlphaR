@@ -145,6 +145,9 @@ void changeHeadProc(std::string group_id, std::string img_filename, std::string 
 	std::string img_path;
 	size_t img_size;
 	getImage(img_filename, img_path, img_size);
+	if (getFileSuffix(img_path) == "gif") {
+		return;
+	}
 	img_size >>= 10;
 	PRINTLOG("[接头霸王] 图像大小: %d kb", img_size);
 	if (img_size > 2048) {

@@ -82,3 +82,11 @@ int createFolder(const std::string& folder_path){
 	}
 	return -1;
 }
+
+std::string getFileSuffix(const std::string& path){
+	int pos = 0;
+	if ((pos = path.find_last_of(".")) != std::string::npos) {
+		return path.substr(pos + 1);
+	}
+	return std::string();
+}

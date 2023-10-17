@@ -20,4 +20,6 @@ void getFileName(std::string file_path, std::string& file_name, char seg = '\\')
 //return 0: success; return -1: fail.
 int createFolder(const std::string& folder_path);
 
+std::string getFileSuffix(const std::string& path);
+
 #endif // !ALPHA_PATHS_H
