@@ -5,6 +5,7 @@
 #include "minecraft_server.h"
 #include "cq_msg_event.h"
 #include "cq_json_msg.h"
+#include "alpha_cv.h"
 
 const std::string MC_SERVER_PATH = "data/mc_servers.json";
 
@@ -33,7 +34,9 @@ int removeMCServer(CQmsg& msg);
 
 int editMCServer(CQmsg& msg);
 
-int generateServerInfo(const Json::Value& server, std::string& info);
+int generateServerInfo(Json::Value& server, std::string& info);
+
+int generateServerInfo(Json::Value& server, cv::OutputArray img);
 //show all servers' info
 int showMCServerInfo(CQmsg& msg);
 //show info of a single server by index

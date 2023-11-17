@@ -12,6 +12,7 @@
 ]
 */
 JsonFile_t MCServerList;
+static const cv::Size MCServerImgSize(700, 150);
 
 int addMCServer(CQmsg& msg){
     Json::Value& server_list = MCServerList.json;
@@ -141,7 +142,7 @@ int editMCServer(CQmsg& msg){
     }
     if (!description.empty()) {
         edit_server["description"] = description;
-        reply_str.append(_U("服务器描述: ")).append(ip).append("\n");
+        reply_str.append(_U("服务器描述: ")).append(description).append("\n");
     }
     if (!reply_str.empty()) {
         MCServerList.save();
@@ -153,7 +154,7 @@ int editMCServer(CQmsg& msg){
     return 0;
 }
 
-int generateServerInfo(const Json::Value& server, std::string& info){
+int generateServerInfo(Json::Value& server, std::string& info){
     Json::Value server_info;
     Json::Value description_json, players, players_list;
     std::string description_str;
@@ -170,12 +171,15 @@ int generateServerInfo(const Json::Value& server, std::string& info){
     case 0:
         if (description_json.isString()) {
             description_str = description_json.asString();
+            server["name"] = description_str;
         }
         else if (description_json.isMember("text")) {
             description_str = description_json["text"].asString();
+            server["name"] = description_str;
         }
         else if (description_json.isMember("translate")) {
             description_str = description_json["translate"].asString();
+            server["name"] = description_str;
         }
         else {
             description_str = _U("【数据删除】");
@@ -216,8 +220,138 @@ int generateServerInfo(const Json::Value& server, std::string& info){
     return 1;
 }
 
+int generateServerInfo(Json::Value& server, cv::OutputArray img){
+    static const cv::Scalar bkg_black(7, 12, 15);
+    static const cv::Scalar letter_grey(128, 128, 128);
+    static const cv::Scalar letter_white(255, 255, 255);
+    static const cv::Scalar ava_green(0, 255, 0);
+    static const cv::Scalar off_red(80, 80, 255);
+    static const char letter_font[] = "Minecraft AE";
+    static const uint8_t name_size = 25;
+    static const uint8_t address_size = 20;
+    static const uint8_t state_size = 18;
+    static const uint8_t player_size = 15;
+    static const cv::Point name_loc(100, 30);
+    static const cv::Point state_loc(650, 30);
+    static const cv::Point player_loc(650, 120);
+
+    img.create(MCServerImgSize, CV_8UC3);
+    cv::Mat& m_dst = img.getMatRef();
+    m_dst.setTo(bkg_black);
+    cv::Size sz_tmp;
+
+    Json::Value server_info;
+    Json::Value description_json, players, players_list;
+    std::string description_str, player_num, player_names, version;
+    std::string name;
+    std::string ip = server["ip"].asString();
+    uint16_t port = server["port"].asInt();
+    std::string address(ip);
+    address.append(":").append(std::to_string(port));
+    int state_ret = getServerInfo(ip, port, server_info);
+    cv::Mat server_icon;
+    if (server_info.isMember("description")) {
+        description_json = server_info["description"];
+    }
+    switch (state_ret){
+    case 0:
+        if (description_json.isString()) {
+            description_str = description_json.asString();
+            server["name"] = description_str;
+        }
+        else if (description_json.isMember("text")) {
+            description_str = description_json["text"].asString();
+            server["name"] = description_str;
+        }
+        else if (description_json.isMember("translate")) {
+            description_str = description_json["translate"].asString();
+            server["name"] = description_str;
+        }
+        else {
+            description_str = _U("【数据删除】");
+        }
+
+        players = server_info["players"];
+        player_num.append(std::to_string(players["online"].asInt())).append("/").append(std::to_string(players["max"].asInt()));
+        if (players.isMember("sample")) {
+            int pnum = 0;
+            player_names.append(_G("在线玩家: "));
+            players_list = players["sample"];
+            for (auto pl = players_list.begin(); pl != players_list.end(); pl++) {
+                player_names.append(utf8ToGB2312((*pl)["name"].asString())).append(", ");
+                pnum++;
+                if (pnum > 2) {
+                    player_names.append("et al., ");
+                    break;
+                }
+            }
+            player_names.erase(player_names.length() - 2, 2);
+
+            sz_tmp = alphaCV::getTextSize(player_names.c_str(), player_size, letter_font);
+            alphaCV::putTextZH(m_dst, player_names.c_str(), player_loc - cv::Point(sz_tmp.width + 15, 0), letter_grey, player_size, letter_font);
+            sz_tmp = alphaCV::getTextSize("!", player_size, letter_font);
+            alphaCV::putTextZH(m_dst, "!", player_loc - cv::Point(sz_tmp.width, 0), ava_green, player_size, letter_font);
+        }
+        if (server_info.isMember("favicon")) {
+            std::string icon_str(server_info["favicon"].asString());
+            std::string img_b64(icon_str.length(), 0);
+            auto it_b64 = img_b64.begin();
+            auto iter = icon_str.cbegin();
+            while (iter != icon_str.cend() && *iter != ',') {
+                iter++;
+            }
+            iter++;
+            for (; iter != icon_str.cend(); iter++) {
+                if (!isspace(*iter)) {
+                    *it_b64 = *iter;
+                    it_b64++;
+                }
+            }
+            std::vector<uchar> img_data;
+            base64Decode(img_b64, img_data);
+            server_icon = cv::imdecode(img_data, cv::IMREAD_UNCHANGED);
+            if (!server_icon.empty()) {
+                mergeImage(server_icon, m_dst, name_loc.x - 84, name_loc.y, 1., MERGE_ADD);
+            }
+        }
+
+        version = utf8ToGB2312(server_info["version"]["name"].asString());
+
+        sz_tmp = alphaCV::getTextSize("服务器在线", state_size, letter_font);
+        alphaCV::putTextZH(m_dst, "服务器在线", state_loc - cv::Point(sz_tmp. width, 0), ava_green, state_size, letter_font);
+        sz_tmp = alphaCV::getTextSize(player_num.c_str(), state_size, letter_font);
+        alphaCV::putTextZH(m_dst, player_num.c_str(), state_loc - cv::Point(sz_tmp.width, -state_size - 10), letter_grey, state_size, letter_font);
+        sz_tmp = alphaCV::getTextSize(version.c_str(), state_size, letter_font);
+        alphaCV::putTextZH(m_dst, version.c_str(), state_loc - cv::Point(sz_tmp.width, -2 * state_size - 20), letter_grey, state_size, letter_font);
+
+        break;
+    case SOCKET_CREATE_ERROR:
+    case SOCKET_ADDRESS_ERROR:
+    case SOCKET_CONNECT_ERROR:
+    default:
+        sz_tmp = alphaCV::getTextSize("服务器离线", state_size, letter_font);
+        alphaCV::putTextZH(m_dst, "服务器离线", state_loc - cv::Point(sz_tmp.width, 0), off_red, state_size, letter_font);
+        break;
+    }
+    if (server.isMember("name")) {
+        name = utf8ToGB2312(server["name"].asString());
+        if (name.empty()) {
+            name = _G("Minecraft服务器");
+        }
+    }
+    else {
+        name = _G("Minecraft服务器");
+    }
+
+    alphaCV::putTextZH(m_dst, name.c_str(), name_loc, letter_white, name_size, letter_font);
+    alphaCV::putTextZH(m_dst, address.c_str(), name_loc + cv::Point(0, 64 - address_size), letter_grey, address_size, letter_font);
+
+    return 1;
+}
+
+/*
 int showMCServerInfo(CQmsg& msg){
-    const Json::Value& server_list = MCServerList.json;
+    Json::Value& server_list = MCServerList.json;
     if (!server_list.isArray()) {
         return 0;
     }
@@ -225,18 +359,54 @@ int showMCServerInfo(CQmsg& msg){
     CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
     uint64_t& grp_id = grp_msg.group->u64_id;
     std::string grp_cid_tmp = grp_msg.group->id;
-    const Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
+    Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
     if (servers.empty()) {
         sendGroupMsg(grp_msg.group->id, _U("本群目前无服务器！"), 1);
         return 0;
     }
-    const Json::Value& servers_data = servers["servers"];
+    Json::Value& servers_data = servers["servers"];
     if (servers_data.isArray() && servers_data.size() > 0) {
         std::string reply_msg;
         for (auto iter = servers_data.begin(); iter != servers_data.end(); iter++) {
             generateServerInfo(*iter, reply_msg);
         }
         sendGroupMsg(grp_cid_tmp, reply_msg, 1);
+        MCServerList.save();
+        return 1;
+    }
+    sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
+    return 0;
+}
+*/
+
+int showMCServerInfo(CQmsg& msg) {
+    Json::Value& server_list = MCServerList.json;
+    if (!server_list.isArray()) {
+        return 0;
+    }
+
+    CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
+    uint64_t& grp_id = grp_msg.group->u64_id;
+    std::string grp_cid_tmp = grp_msg.group->id;
+    Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
+    if (servers.empty()) {
+        sendGroupMsg(grp_msg.group->id, _U("本群目前无服务器！"), 1);
+        return 0;
+    }
+    Json::Value& servers_data = servers["servers"];
+    int loc_idx = 0;
+    if (servers_data.isArray() && servers_data.size() > 0) {
+        CQJsonMsg reply;
+        cv::Mat list_img(cv::Size(MCServerImgSize.width, servers_data.size() * MCServerImgSize.height), CV_8UC3);
+        cv::Mat tmp;
+        for (auto iter = servers_data.begin(); iter != servers_data.end(); iter++) {
+            generateServerInfo(*iter, tmp);
+            tmp.copyTo(list_img(cv::Rect(0, loc_idx * MCServerImgSize.height, MCServerImgSize.width, MCServerImgSize.height)));
+            loc_idx++;
+        }
+        MCServerList.save();
+        reply.append(CQJmsg::image(list_img));
+        sendGroupMsg(grp_cid_tmp, reply.getJson());
         return 1;
     }
     sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
@@ -244,7 +414,7 @@ int showMCServerInfo(CQmsg& msg){
 }
 
 int showMCServerInfoByIndex(CQmsg& msg, int index){
-    const Json::Value& server_list = MCServerList.json;
+    Json::Value& server_list = MCServerList.json;
     if (!server_list.isArray()) {
         return 0;
     }
@@ -252,29 +422,30 @@ int showMCServerInfoByIndex(CQmsg& msg, int index){
     CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
     uint64_t& grp_id = grp_msg.group->u64_id;
     std::string grp_cid_tmp = grp_msg.group->id;
-    const Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
+    Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
     if (servers.empty()) {
         sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
         return 0;
     }
-    const Json::Value& server_datas = servers["servers"];
+    Json::Value& server_datas = servers["servers"];
     if (!server_datas.isArray() || index > server_datas.size()) {
         sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
         return 0;
     }
-    const Json::Value& show_server = getJsonByKeyword(server_datas, "index", index);
+    Json::Value& show_server = getJsonByKeyword(server_datas, "index", index);
     if (show_server.empty()) {
         sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
         return 0;
     }
     std::string reply_msg;
     generateServerInfo(show_server, reply_msg);
+    MCServerList.save();
     sendGroupMsg(grp_cid_tmp, reply_msg, 1);
     return 1;
 }
 
 int showMCServerInfoByDesc(CQmsg& msg, std::string content){
-    const Json::Value& server_list = MCServerList.json;
+    Json::Value& server_list = MCServerList.json;
     if (!server_list.isArray()) {
         return 0;
     }
@@ -282,12 +453,12 @@ int showMCServerInfoByDesc(CQmsg& msg, std::string content){
     CQGroupMsg& grp_msg = static_cast<CQGroupMsg&>(msg);
     uint64_t& grp_id = grp_msg.group->u64_id;
     std::string grp_cid_tmp = grp_msg.group->id;
-    const Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
+    Json::Value& servers = getJsonByKeyword(server_list, "group_id", grp_id);
     if (servers.empty()) {
         sendGroupMsg(grp_cid_tmp, _U("本群目前无服务器！"), 1);
         return 0;
     }
-    const Json::Value& server_datas = servers["servers"];
+    Json::Value& server_datas = servers["servers"];
     if (!server_datas.isArray()) {
         sendGroupMsg(grp_cid_tmp, _G("未找到指定服务器。"), 0);
         return 0;
@@ -302,6 +473,7 @@ int showMCServerInfoByDesc(CQmsg& msg, std::string content){
         }
     }
     if (!reply_msg.empty()) {
+        MCServerList.save();
         sendGroupMsg(grp_cid_tmp, reply_msg, 1);
         return 1;
     }

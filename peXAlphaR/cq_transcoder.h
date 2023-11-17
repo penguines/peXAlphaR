@@ -42,6 +42,8 @@ std::string utf8ToGB2312(const std::string& str_utf8);
 
 void base64Encode(std::vector<unsigned char>& str, std::string& result);
 
+void base64Decode(const std::string& base64_str, std::vector<unsigned char>& result);
+
 void toLowerCase(std::string& str);
 
 #endif // !CQ_TRANSCODER_H

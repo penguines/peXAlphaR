@@ -1,6 +1,7 @@
 #include "cq_transcoder.h"
 
 static const char* BASE64STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static uint8_t BASE64DECODESTR[128];
 
 std::string encodeNL(std::string input) {
 	int i = 0;
@@ -119,6 +120,53 @@ void base64Encode(std::vector<unsigned char>& str, std::string& result){
 		base64_chr[2] = BASE64STR[(chr_tmp[1] & 0x0F) << 2];
 		base64_chr[3] = '=';
 		result.append(base64_chr);
+	}
+}
+
+void base64Decode(const std::string& base64_str, std::vector<unsigned char>& result){
+	static const uint8_t b64_mask = 0x3F;
+	static const uint8_t shift[4] = { 18, 12, 6, 0 };
+	//decode LUT init
+	static bool decodeLUT_init = false;
+	if (decodeLUT_init == false) {
+		for (uint8_t val = 0; val < 64; val++) {
+			BASE64DECODESTR[(uint8_t)BASE64STR[val]] = val;
+		}
+		decodeLUT_init = true;
+	}
+	//decode
+	const char* chr64 = base64_str.data();
+	int len = base64_str.length();
+	//calc result size
+	//data_bytes = (char_length / 4) * 3 - num(=)
+	size_t result_len = (len >> 2) * 3;
+	while (chr64[len] == '=') {
+		result_len--;
+		len--;
+	}
+	//decode begin
+	result.assign(result_len, 0);
+	int cnt = 0;
+	uint32_t tmp = 0, dat = 0;
+	size_t res_cnt = 0;
+	int i = 0;
+	for (i = 0; i < len; i++) {
+		tmp = BASE64DECODESTR[(uint8_t)chr64[i]];
+		dat |= tmp << shift[cnt];
+		cnt++;
+		if (cnt == 4) {
+			result[res_cnt] = (dat & 0xFF0000) >> 16;
+			result[res_cnt + 1] = (dat & 0xFF00) >> 8;
+			result[res_cnt + 2] = dat & 0xFF;
+			res_cnt += 3;
+			dat = 0;
+			cnt = 0;
+		}
+	}
+	for (i = 1; i < cnt; i++) {
+		dat <<= 8;
+		result[res_cnt] = (dat & 0xFF000000) >> 24;
+		res_cnt++;
 	}
 }
 
